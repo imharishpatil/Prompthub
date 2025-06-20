@@ -1,17 +1,34 @@
 # For Build
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /app
 
-COPY package.json package-lock.json* ./ 
+COPY package.json package-lock.json* ./
 RUN npm install
+
+# Install OpenSSL 1.1 (required by Prisma)
+RUN apt-get update && apt-get install -y openssl
 
 COPY . .
 
-RUN npx ts-node src/index.ts
+# Build TypeScript
+RUN npm run build
+
+# Generate Prisma client (if using Prisma)
+RUN npx prisma generate
+
+# entrypoint script
+COPY entrypoint.sh ./
+RUN chmod +x ./entrypoint.sh
+
+EXPOSE 4000
+
+ENTRYPOINT ["./entrypoint.sh"]
+
+
 
 # For Production
-# FROM node:20-alpine
+# FROM node:20-slim
 
 # WORKDIR /app
 

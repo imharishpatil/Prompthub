@@ -1,0 +1,158 @@
+"use client"
+
+import * as React from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { Menu, X, Zap, LogOut } from "lucide-react"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { ThemeToggle } from "@/components/ui/theme-toggle"
+import { cn } from "@/lib/utils"
+
+const isAuthPage:boolean = false; //pathname === "/login" || pathname === "/register"
+let navigation:Array<{ name: string; href: string }> = []
+if (isAuthPage) {
+  navigation = [
+    { name: "Dashboard", href: "/dashboard" },
+    { name: "Explore", href: "/explore" },
+    { name: "Create", href: "/create" },
+  ];
+} else {
+  navigation = [
+    { name: "Home", href: "/" },
+    { name: "Explore", href: "/explore" },
+    { name: "About", href: "/about" },
+  ];
+}
+
+export function Navbar() {
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
+  const pathname = usePathname()
+
+  return (
+    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
+          {/* Logo */}
+          <div className="flex items-center">
+            <Link href="/" className="flex items-center space-x-2">
+              <Zap className="h-8 w-8" />
+              <span className="text-xl font-bold">PromptHub</span>
+            </Link>
+          </div>
+
+          {/* Desktop Navigation */}
+          
+            <div className="hidden md:block">
+              <div className="ml-10 flex items-baseline space-x-4">
+                {navigation.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={cn(
+                      "px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                      pathname === item.href
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-accent",
+                    )}
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          
+
+          {/* Right side */}
+          <div className="flex items-center space-x-4">
+            <ThemeToggle />
+
+            {!isAuthPage ? (
+              <div className="hidden sm:flex items-center space-x-2">
+                <Link href="/login">
+                  <Button variant="secondary">Login</Button>
+                </Link>
+                <Link href="/register">
+                  <Button variant="outline">Register</Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="hidden md:flex items-center space-x-2">
+                <Avatar>
+                    <AvatarImage src="/placeholder-user.jpg" alt="Profile" className="cursor-pointer"/>
+                    <AvatarFallback>H</AvatarFallback>
+                </Avatar>
+                <Button variant="outline" size="sm">
+                    <LogOut />
+                  Logout
+                </Button>
+              </div>
+            )}
+
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden">
+            <div className="px-2 pt-2 pb-3 space-y-1 border-t">
+                  {navigation.map((item) => (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={cn(
+                        "block px-3 py-2 rounded-md text-base font-medium transition-colors",
+                        pathname === item.href
+                          ? "bg-primary text-primary-foreground"
+                          : "text-muted-foreground hover:text-foreground hover:bg-accent",
+                      )}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
+                  {isAuthPage ? (
+                  <div className="pt-4 pb-3 border-t flex">
+                     <Avatar>
+                    <AvatarImage src="/placeholder-user.jpg" alt="Profile" className="cursor-pointer"/>
+                    <AvatarFallback>H</AvatarFallback>
+                </Avatar>
+                <Button variant="outline" size="sm" >
+                    <LogOut />
+                </Button>
+                  </div>
+              ) : (
+                <div className="space-y-2 flex">
+                  <Link href="/login" className="block">
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Login
+                    </Button>
+                  </Link>
+                  <Link href="/register" className="block">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Register
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </nav>
+  )
+}

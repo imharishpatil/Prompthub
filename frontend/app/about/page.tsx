@@ -1,0 +1,209 @@
+import React from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import {
+  Search,
+  Star,
+  Edit3,
+  Users,
+  Zap,
+  Globe,
+  MessageCircle,
+  ImageIcon,
+  GitBranch,
+} from "lucide-react"
+
+export default function AboutPage() {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Hero Section */}
+        <div className="text-center mb-16">
+          <div className="flex justify-center mb-6">
+            <Zap className="h-16 w-16 text-blue-600" />
+          </div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Welcome to PromptHub</h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            The ultimate platform for creating, sharing, and discovering AI prompts. Join our community of prompt
+            engineers and unlock the full potential of AI through collaboration and feedback.
+          </p>
+        </div>
+
+        {/* Mission Section */}
+        <div className="mb-16">
+          <Card>
+            <CardContent className="p-8">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Mission</h2>
+                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                  To democratize AI by making high-quality prompts accessible to everyone, fostering innovation and
+                  creativity through community-driven feedback and remix culture.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="text-center">
+                  <div className="p-4 bg-blue-100 rounded-full w-16 h-16 mx-auto mb-4">
+                    <Users className="h-8 w-8 text-blue-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Community</h3>
+                  <p className="text-gray-600">Connect with fellow prompt engineers and learn from the best</p>
+                </div>
+
+                <div className="text-center">
+                  <div className="p-4 bg-green-100 rounded-full w-16 h-16 mx-auto mb-4">
+                    <GitBranch className="h-8 w-8 text-green-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Remix Culture</h3>
+                  <p className="text-gray-600">Build upon existing prompts to create even better versions</p>
+                </div>
+
+                <div className="text-center">
+                  <div className="p-4 bg-purple-100 rounded-full w-16 h-16 mx-auto mb-4">
+                    <MessageCircle className="h-8 w-8 text-purple-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Feedback</h3>
+                  <p className="text-gray-600">Get valuable feedback and ratings to improve your prompts</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Stats Section */}
+        <div className="mb-16">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Platform Statistics</h2>
+            <p className="text-lg text-gray-600">Join thousands of users who are already creating amazing prompts</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <Card>
+              <CardContent className="p-6 text-center">
+                <div className="text-3xl font-bold text-blue-600 mb-2">10,000+</div>
+                <div className="text-gray-600">Active Users</div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6 text-center">
+                <div className="text-3xl font-bold text-green-600 mb-2">50,000+</div>
+                <div className="text-gray-600">Prompts Created</div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6 text-center">
+                <div className="text-3xl font-bold text-purple-600 mb-2">25,000+</div>
+                <div className="text-gray-600">Feedback Given</div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6 text-center">
+                <div className="text-3xl font-bold text-red-600 mb-2">5,000+</div>
+                <div className="text-gray-600">Prompts Remixed</div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Features Section */}
+        <div className="mb-16">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Choose PromptHub?</h2>
+            <p className="text-lg text-gray-600">Everything you need to create, manage, and share AI prompts</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <Card>
+              <CardContent className="p-6">
+                <div className="p-3 bg-blue-100 rounded-lg w-12 h-12 mb-4">
+                  <Edit3 className="h-6 w-6 text-blue-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Rich Text Editor</h3>
+                <p className="text-gray-600">Advanced prompt editor with formatting, preview, and image support</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="p-3 bg-green-100 rounded-lg w-12 h-12 mb-4">
+                  <GitBranch className="h-6 w-6 text-green-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Remix System</h3>
+                <p className="text-gray-600">Build upon existing prompts to create enhanced versions</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="p-3 bg-purple-100 rounded-lg w-12 h-12 mb-4">
+                  <Star className="h-6 w-6 text-purple-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Rating System</h3>
+                <p className="text-gray-600">Community-driven 5-star rating system with detailed feedback</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="p-3 bg-yellow-100 rounded-lg w-12 h-12 mb-4">
+                  <Search className="h-6 w-6 text-yellow-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Smart Discovery</h3>
+                <p className="text-gray-600">Find prompts using tags, content search, and advanced filters</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="p-3 bg-red-100 rounded-lg w-12 h-12 mb-4">
+                  <ImageIcon className="h-6 w-6 text-red-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Image Support</h3>
+                <p className="text-gray-600">Add images to your prompts for better context and visual appeal</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="p-3 bg-indigo-100 rounded-lg w-12 h-12 mb-4">
+                  <Globe className="h-6 w-6 text-indigo-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Google Integration</h3>
+                <p className="text-gray-600">Sign in with Google for seamless authentication and sync</p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* CTA Section */}
+        <div className="text-center">
+          <Card>
+            <CardContent className="p-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Ready to Get Started?</h2>
+              <p className="text-lg text-gray-600 mb-6">
+                Join PromptHub today and start creating, sharing, and discovering amazing AI prompts
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button
+                  size="lg"
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  Sign Up Free
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                >
+                  Sign In
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  )
+}

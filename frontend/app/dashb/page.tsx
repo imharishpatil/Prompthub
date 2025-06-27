@@ -365,8 +365,8 @@ export default function Dashboard() {
               </Avatar>
               <div>
                 <h1 className="text-3xl font-bold text-foreground">Welcome back, {user.name?.split(" ")[0] || "User"}!</h1>
-                <p className="text-gray-600">Ready to create some amazing prompts today?</p>
-                <div className="flex items-center space-x-2 mt-2 text-sm text-gray-500">
+                <p className="text-primary">Ready to create some amazing prompts today?</p>
+                <div className="flex items-center space-x-2 mt-2 text-sm text-muted-foreground">
                   <Calendar className="h-4 w-4" />
                   <span>Member since {formatDate(user.createdAt)}</span>
                   {user.googleId && (
@@ -395,8 +395,8 @@ export default function Dashboard() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                      <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+                      <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
+                      <p className="text-3xl font-bold text-foreground">{stat.value}</p>
                     </div>
                     <div className={`p-3 rounded-full ${stat.bgColor}`}>
                       <stat.icon className={`h-6 w-6 ${stat.color}`} />
@@ -413,7 +413,7 @@ export default function Dashboard() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <Target className="h-5 w-5 mr-2 text-blue-600" />
+                    <Target className="h-5 w-5 mr-2 text-blue" />
                     Weekly Goal
                   </CardTitle>
                   <CardDescription>Create {weeklyGoal} prompts this week</CardDescription>
@@ -421,14 +421,14 @@ export default function Dashboard() {
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-700">Progress</span>
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm font-medium text-foreground">Progress</span>
+                      <span className="text-sm text-foreground">
                         {currentProgress} of {weeklyGoal}
                       </span>
                     </div>
                     <Progress value={progressPercentage} className="h-3" />
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-500">{weeklyGoal - currentProgress} prompts to go</span>
+                      <span className="text-foreground">{weeklyGoal - currentProgress} prompts to go</span>
                       <span className="font-medium text-blue-600">{Math.round(progressPercentage)}%</span>
                     </div>
                   </div>
@@ -481,13 +481,13 @@ export default function Dashboard() {
                       return (
                         <div
                           key={prompt.id}
-                          className="flex items-start space-x-4 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                          className="flex items-start space-x-4 p-4 border border-border rounded-lg hover:border-card-foreground transition-colors cursor-pointer"
                         >
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-2">
-                              <h3 className="text-sm font-medium text-gray-900 truncate">{prompt.title}</h3>
+                              <h3 className="text-sm font-medium text-foreground truncate">{prompt.title}</h3>
                               <div className="flex items-center space-x-2">
-                                <Badge variant={prompt.isPublic ? "default" : "secondary"}>
+                                <Badge variant={prompt.isPublic ? "default" : "secondary"} className="text-muted-foreground font-light px-1 py-0.5">
                                   {prompt.isPublic ? "Public" : "Private"}
                                 </Badge>
                                 {prompt.remixOf && (
@@ -501,13 +501,13 @@ export default function Dashboard() {
   
                             <div className="flex flex-wrap gap-1 mb-2">
                               {prompt.tags.slice(0, 3).map((tag) => (
-                                <Badge key={tag} variant="outline" className="text-xs">
+                                <Badge key={tag} variant="outline" className="text-xs text-muted-foreground font-light px-1 py-0.5">
                                   {tag}
                                 </Badge>
                               ))}
                             </div>
   
-                            <div className="flex items-center space-x-4 text-xs text-gray-500">
+                            <div className="flex items-center space-x-4 text-xs text-foreground">
                               {avgRating > 0 && (
                                 <span className="flex items-center">
                                   <Star className="h-3 w-3 mr-1 fill-yellow-400 text-yellow-400" />
@@ -537,7 +537,7 @@ export default function Dashboard() {
                   <div className="mt-4">
                     <Button
                       variant="outline"
-                      className="w-full"
+                      className="w-full hover:bg-accent"
                     >
                       View All Prompts
                     </Button>
@@ -556,13 +556,13 @@ export default function Dashboard() {
                     {recentActivity.map((activity) => (
                       <div key={activity.id} className="flex items-start space-x-3">
                         <div className="flex-shrink-0">
-                          <div className="p-2 bg-gray-100 rounded-full">
-                            <activity.icon className="h-4 w-4 text-gray-600" />
+                          <div className="p-2 bg-accent-foreground rounded-full">
+                            <activity.icon className="h-4 w-4 text-background" />
                           </div>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-900">{activity.title}</p>
-                          <p className="text-xs text-gray-500">{activity.time}</p>
+                          <p className="text-sm text-foreground">{activity.title}</p>
+                          <p className="text-xs text-muted-foreground">{activity.time}</p>
                         </div>
                       </div>
                     ))}

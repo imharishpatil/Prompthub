@@ -410,31 +410,31 @@ export default function ExplorePage() {
       }
     
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Explore Prompts</h1>
-          <p className="text-gray-600">Discover amazing prompts created by the community</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Explore Prompts</h1>
+          <p className="text-muted-foreground">Discover amazing prompts created by the community</p>
         </div>
 
         {/* Search and Filters */}
         <div className="mb-8 space-y-4">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search prompts, tags, or content..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-10 bg-card text-foreground border-border"
               />
             </div>
             <div className="flex gap-2">
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-border rounded-md text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 {sortOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -442,7 +442,7 @@ export default function ExplorePage() {
                   </option>
                 ))}
               </select>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="border-border text-foreground">
                 <Filter className="h-4 w-4 mr-2" />
                 Filters
               </Button>
@@ -452,13 +452,13 @@ export default function ExplorePage() {
           {/* Tag Filters */}
           <div>
             <div className="flex items-center space-x-2 mb-3">
-              <span className="text-sm font-medium text-gray-700">Filter by tags:</span>
+              <span className="text-sm font-medium text-foreground">Filter by tags:</span>
               {selectedTags.length > 0 && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setSelectedTags([])}
-                  className="text-xs text-gray-500 hover:text-gray-700"
+                  className="text-xs text-muted-foreground hover:text-foreground"
                 >
                   Clear all
                 </Button>
@@ -471,7 +471,7 @@ export default function ExplorePage() {
                   variant={selectedTags.includes(tag) ? "default" : "outline"}
                   size="sm"
                   onClick={() => toggleTag(tag)}
-                  className="text-xs"
+                  className={`text-xs ${selectedTags.includes(tag) ? "bg-primary text-primary-foreground" : "bg-background text-foreground border-border"}`}
                 >
                   {tag}
                 </Button>
@@ -485,17 +485,17 @@ export default function ExplorePage() {
           {filteredPrompts.map((prompt) => {
             const avgRating = getAverageRating(prompt.feedbacks)
             return (
-              <Card key={prompt.id} className="hover:shadow-lg transition-shadow cursor-pointer">
+              <Card key={prompt.id} className="bg-card border border-border hover:shadow-lg transition-shadow cursor-pointer">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <CardTitle className="text-lg line-clamp-2">{prompt.title}</CardTitle>
-                      <CardDescription className="mt-2 line-clamp-3">
+                      <CardTitle className="text-lg line-clamp-2 text-foreground">{prompt.title}</CardTitle>
+                      <CardDescription className="mt-2 line-clamp-3 text-muted-foreground">
                         {prompt.content.substring(0, 150)}...
                       </CardDescription>
                     </div>
                     {prompt.remixOf && (
-                      <Badge variant="outline" className="ml-2">
+                      <Badge variant="outline" className="ml-2 text-xs bg-background text-foreground border-border flex items-center">
                         <GitBranch className="h-3 w-3 mr-1" />
                         Remix
                       </Badge>
@@ -505,25 +505,25 @@ export default function ExplorePage() {
                 <CardContent>
                   <div className="space-y-4">
                     {prompt.imageUrl && (
-                      <div className="w-full h-32 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <ImageIcon className="h-8 w-8 text-gray-400" />
+                      <div className="w-full h-32 bg-muted rounded-lg flex items-center justify-center">
+                        <ImageIcon className="h-8 w-8 text-muted-foreground" />
                       </div>
                     )}
 
                     <div className="flex flex-wrap gap-1">
                       {prompt.tags.slice(0, 4).map((tag) => (
-                        <Badge key={tag} variant="outline" className="text-xs">
+                        <Badge key={tag} variant="outline" className="text-xs bg-background text-foreground border-border">
                           {tag}
                         </Badge>
                       ))}
                       {prompt.tags.length > 4 && (
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-xs bg-background text-foreground border-border">
                           +{prompt.tags.length - 4}
                         </Badge>
                       )}
                     </div>
 
-                    <div className="flex items-center justify-between text-sm text-gray-600">
+                    <div className="flex items-center justify-between text-xs md:text-sm text-muted-foreground">
                       <div className="flex items-center space-x-4">
                         {avgRating > 0 && (
                           <span className="flex items-center">
@@ -542,19 +542,19 @@ export default function ExplorePage() {
                           </span>
                         )}
                       </div>
-                      <span className="text-xs text-gray-500">by {prompt.author.name}</span>
+                      <span className="text-xs text-muted-foreground">by {prompt.author.name}</span>
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">{formatDate(prompt.createdAt)}</span>
+                      <span className="text-xs text-muted-foreground">{formatDate(prompt.createdAt)}</span>
                       <div className="flex space-x-2">
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" className="border-border text-foreground">
                           <Heart className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" className="border-border text-foreground">
                           <GitBranch className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" className="border-border text-foreground">
                           <Share2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -568,9 +568,9 @@ export default function ExplorePage() {
 
         {filteredPrompts.length === 0 && (
           <div className="text-center py-12">
-            <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No prompts found</h3>
-            <p className="text-gray-600">Try adjusting your search or filters</p>
+            <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">No prompts found</h3>
+            <p className="text-muted-foreground">Try adjusting your search or filters</p>
           </div>
         )}
       </div>

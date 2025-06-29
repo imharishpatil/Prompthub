@@ -108,10 +108,10 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="bg-background">
+      <Card className="bg-card border border-border shadow-lg">
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Welcome</CardTitle>
-          <CardDescription>Continue with your Google account</CardDescription>
+          <CardTitle className="text-xl text-foreground">Welcome</CardTitle>
+          <CardDescription className="text-muted-foreground">Continue with your Google account</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
@@ -119,7 +119,7 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
               <div className="flex flex-col gap-4">
                 <Button
                   variant="outline"
-                  className="w-full flex bg-muted hover:bg-muted/80"
+                  className="w-full flex bg-muted hover:bg-muted/80 text-foreground border-border"
                 >
                   <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                     <path
@@ -143,13 +143,13 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
                 </Button>
               </div>
               <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
-                <span className="relative z-10 bg-background px-2 text-muted-foreground">
+                <span className="relative z-10 bg-card px-2 text-muted-foreground">
                   Or continue with
                 </span>
               </div>
               <div className="grid gap-6">
                 <div className="grid gap-2">
-                  <Label htmlFor="name">Name</Label>
+                  <Label htmlFor="name" className="text-foreground">Name</Label>
                   <Input
                     id="name"
                     type="text"
@@ -157,7 +157,7 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
                     }
-                    className={errors.name ? "border-red-500 bg-muted" : "bg-muted"}
+                    className={errors.name ? "border-red-500 bg-muted text-foreground" : "bg-muted text-foreground"}
                     placeholder="Jhon Doe"
                   />
                   {errors.name && (
@@ -165,7 +165,7 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
                   )}
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="text-foreground">Email</Label>
                   <Input
                     id="email"
                     type="email"
@@ -173,7 +173,7 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
                     onChange={(e) =>
                       setFormData({ ...formData, email: e.target.value })
                     }
-                    className={errors.email ? "border-red-500 bg-muted" : "bg-muted"}
+                    className={errors.email ? "border-red-500 bg-muted text-foreground" : "bg-muted text-foreground"}
                     placeholder="m@example.com"
                   />
                   {errors.email && (
@@ -182,7 +182,7 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
                 </div>
                 <div className="grid gap-2">
                   <div className="flex items-center">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password" className="text-foreground">Password</Label>
                   </div>
                   <Input
                     id="password"
@@ -191,13 +191,13 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
                     onChange={(e) =>
                       setFormData({ ...formData, password: e.target.value })
                     }
-                    className={errors.password ? "border-red-500 bg-muted" : "bg-muted"}
+                    className={errors.password ? "border-red-500 bg-muted text-foreground" : "bg-muted text-foreground"}
                     placeholder="********"
                   />
                 </div>
                 {formData.password && (
                   <div className="mt-2">
-                    <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
                       <span>Password strength</span>
                       <span
                         className={`font-medium ${
@@ -211,7 +211,7 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
                         {getPasswordStrengthText(passwordValidation.strength)}
                       </span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-muted rounded-full h-2">
                       <div
                         className={`h-2 rounded-full transition-all duration-300 ${getPasswordStrengthColor(
                           passwordValidation.strength
@@ -220,7 +220,7 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
                       />
                     </div>
                     {passwordValidation.feedback.length > 0 && (
-                      <div className="mt-1 text-xs text-gray-600">
+                      <div className="mt-1 text-xs text-muted-foreground">
                         Missing: {passwordValidation.feedback.join(", ")}
                       </div>
                     )}
@@ -234,14 +234,14 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
                 <Button
                   type="submit"
                   variant="ghost"
-                  className="w-full bg-foreground text-background hover:text-background"
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-background"
                 >
                   Register
                 </Button>
               </div>
-              <div className="text-center text-sm">
-                Don&apos;t have an account?{" "}
-                <Link href="/login" className="underline underline-offset-4">
+              <div className="text-center text-sm text-muted-foreground">
+                Already have an account?{" "}
+                <Link href="/login" className="underline underline-offset-4 text-primary hover:text-primary/50">
                   Login
                 </Link>
               </div>
@@ -249,7 +249,7 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
           </form>
         </CardContent>
       </Card>
-      <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary  ">
+      <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary">
         By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
         and <a href="#">Privacy Policy</a>.
       </div>

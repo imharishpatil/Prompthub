@@ -354,9 +354,9 @@ export default function Dashboard() {
           {/* Welcome Header */}
           <div className="mb-8">
             <div className="flex items-center space-x-4">
-              <Avatar className="h-16 w-16">
+              <Avatar className="h-16 w-16 bg-card border border-border">
                 <AvatarImage src={user.avatarUrl || "/placeholder.svg"} alt={user.name || "User"} />
-                <AvatarFallback className="text-lg">
+                <AvatarFallback className="text-lg bg-muted text-muted-foreground">
                   {user.name
                     ?.split(" ")
                     .map((n) => n[0])
@@ -391,15 +391,15 @@ export default function Dashboard() {
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {stats.map((stat) => (
-              <Card key={stat.title}>
+              <Card key={stat.title} className="bg-card border border-border">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
                       <p className="text-3xl font-bold text-foreground">{stat.value}</p>
                     </div>
-                    <div className={`p-3 rounded-full ${stat.bgColor}`}>
-                      <stat.icon className={`h-6 w-6 ${stat.color}`} />
+                    <div className={`p-3 rounded-full bg-secondary`}>
+                      <stat.icon className={`h-6 w-6 text-primary`} />
                     </div>
                   </div>
                 </CardContent>
@@ -410,13 +410,13 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Weekly Goal Progress */}
             <div className="lg:col-span-1">
-              <Card>
+              <Card className="bg-card border border-border">
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Target className="h-5 w-5 mr-2 text-blue" />
                     Weekly Goal
                   </CardTitle>
-                  <CardDescription>Create {weeklyGoal} prompts this week</CardDescription>
+                  <CardDescription className="text-muted-foreground">Create {weeklyGoal} prompts this week</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -426,37 +426,37 @@ export default function Dashboard() {
                         {currentProgress} of {weeklyGoal}
                       </span>
                     </div>
-                    <Progress value={progressPercentage} className="h-3" />
+                    <Progress value={progressPercentage} className="h-3 bg-muted" />
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-foreground">{weeklyGoal - currentProgress} prompts to go</span>
-                      <span className="font-medium text-blue-600">{Math.round(progressPercentage)}%</span>
+                      <span className="font-medium text-primary">{Math.round(progressPercentage)}%</span>
                     </div>
                   </div>
                 </CardContent>
               </Card>
   
               {/* Quick Actions */}
-              <Card className="mt-6">
+              <Card className="mt-6 bg-card border border-border">
                 <CardHeader>
                   <CardTitle>Quick Actions</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <Button
-                    className="w-full justify-start"
+                    className="w-full justify-start bg-muted text-muted-foreground hover:bg-secondary"
                     variant="outline"
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Create New Prompt
                   </Button>
                   <Button
-                    className="w-full justify-start"
+                    className="w-full justify-start bg-muted text-muted-foreground hover:bg-secondary"
                     variant="outline"
                   >
                     <Search className="h-4 w-4 mr-2" />
                     Explore Community
                   </Button>
                   <Button
-                    className="w-full justify-start"
+                    className="w-full justify-start bg-muted text-muted-foreground hover:bg-secondary"
                     variant="outline"
                   >
                     <Settings className="h-4 w-4 mr-2" />
@@ -469,10 +469,10 @@ export default function Dashboard() {
             {/* Recent Prompts and Activity */}
             <div className="lg:col-span-2 space-y-8">
               {/* Recent Prompts */}
-              <Card>
+              <Card className="bg-card border border-border">
                 <CardHeader>
                   <CardTitle>Your Recent Prompts</CardTitle>
-                  <CardDescription>Your latest prompt creations</CardDescription>
+                  <CardDescription className="text-muted-foreground">Your latest prompt creations</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -481,13 +481,13 @@ export default function Dashboard() {
                       return (
                         <div
                           key={prompt.id}
-                          className="flex items-start space-x-4 p-4 border border-border rounded-lg hover:border-card-foreground transition-colors cursor-pointer"
+                          className="flex items-start space-x-4 p-4 border border-border rounded-lg hover:border-primary transition-colors cursor-pointer bg-background"
                         >
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-2">
                               <h3 className="text-sm font-medium text-foreground truncate">{prompt.title}</h3>
                               <div className="flex items-center space-x-2">
-                                <Badge variant={prompt.isPublic ? "default" : "secondary"} className="text-muted-foreground font-light px-1 py-0.5">
+                                <Badge variant="secondary" className="text-muted-foreground font-light px-1 py-0.5">
                                   {prompt.isPublic ? "Public" : "Private"}
                                 </Badge>
                                 {prompt.remixOf && (
@@ -537,7 +537,7 @@ export default function Dashboard() {
                   <div className="mt-4">
                     <Button
                       variant="outline"
-                      className="w-full hover:bg-accent"
+                      className="w-full hover:bg-accent text-primary"
                     >
                       View All Prompts
                     </Button>
@@ -546,18 +546,18 @@ export default function Dashboard() {
               </Card>
   
               {/* Recent Activity */}
-              <Card>
+              <Card className="bg-card border border-border">
                 <CardHeader>
                   <CardTitle>Recent Activity</CardTitle>
-                  <CardDescription>Your latest activity on PromptHub</CardDescription>
+                  <CardDescription className="text-muted-foreground">Your latest activity on PromptHub</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     {recentActivity.map((activity) => (
                       <div key={activity.id} className="flex items-start space-x-3">
                         <div className="flex-shrink-0">
-                          <div className="p-2 bg-accent-foreground rounded-full">
-                            <activity.icon className="h-4 w-4 text-background" />
+                          <div className="p-2 bg-accent rounded-full">
+                            <activity.icon className="h-4 w-4 text-accent-foreground" />
                           </div>
                         </div>
                         <div className="flex-1 min-w-0">

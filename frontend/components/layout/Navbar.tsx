@@ -2,33 +2,58 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { Menu, X, Zap, LogOut } from "lucide-react"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { cn } from "@/lib/utils"
 
-const isAuthPage: boolean = false; //pathname === "/login" || pathname === "/register"
-let navigation: Array<{ name: string; href: string }> = []
-if (isAuthPage) {
-  navigation = [
-    { name: "Dashboard", href: "/dashboard" },
-    { name: "Explore", href: "/explore" },
-    { name: "Create", href: "/create" },
-    { name: "Profile", href: "/profile" },
-  ];
-} else {
-  navigation = [
-    { name: "Home", href: "/" },
-    { name: "Explore", href: "/explore" },
-    { name: "About", href: "/about" },
-  ];
-}
-
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
   const pathname = usePathname()
+  const router = useRouter()
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false)
+  const [user, setUser] = React.useState<{ name?: string; avatarUrl?: string } | null>(null)
+
+  React.useEffect(() => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    setIsLoggedIn(!!token);
+    const userData = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+    if (userData) {
+      try {
+        const parsed = JSON.parse(userData);
+        if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+          setUser(parsed);
+        } else {
+          setUser(null);
+        }
+      } catch {
+        setUser(null);
+      }
+    }
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem("token")
+    localStorage.removeItem("user")
+    setIsLoggedIn(false)
+    setUser(null)
+    router.push("/login")
+  }
+
+  const navigation = isLoggedIn
+    ? [
+        { name: "Dashboard", href: "/dashboard" },
+        { name: "Explore", href: "/explore" },
+        { name: "Create", href: "/create" },
+        { name: "Profile", href: "/profile" },
+      ]
+    : [
+        { name: "Home", href: "/" },
+        { name: "Explore", href: "/explore" },
+        { name: "About", href: "/about" },
+      ]
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background backdrop-blur supports-[backdrop-filter]:bg-background/60 border-border">
@@ -68,7 +93,7 @@ export function Navbar() {
           <div className="flex items-center space-x-4">
             <ThemeToggle />
 
-            {!isAuthPage ? (
+            {!isLoggedIn ? (
               <div className="hidden sm:flex items-center space-x-2">
                 <Link href="/login">
                   <Button
@@ -91,16 +116,19 @@ export function Navbar() {
               <div className="hidden md:flex items-center space-x-2">
                 <Avatar>
                   <AvatarImage
-                    src="/placeholder-user.jpg"
+                    src={user?.avatarUrl || "/placeholder-user.jpg"}
                     alt="Profile"
                     className="cursor-pointer"
                   />
-                  <AvatarFallback>H</AvatarFallback>
+                  <AvatarFallback>
+                    {user?.name ? user.name[0] : "U"}
+                  </AvatarFallback>
                 </Avatar>
                 <Button
                   variant="ghost"
                   size="sm"
                   className="text-muted-foreground hover:text-red-400 hover:bg-transparent"
+                  onClick={handleLogout}
                 >
                   <LogOut className="h-4 w-4" />
                 </Button>
@@ -143,17 +171,19 @@ export function Navbar() {
                   {item.name}
                 </Link>
               ))}
-              {isAuthPage ? (
-                <div className="pt-4 pb-3 border-t flex">
+              {isLoggedIn ? (
+                <div className="pt-4 pb-3 border-t flex items-center space-x-2">
                   <Avatar>
                     <AvatarImage
-                      src="/placeholder-user.jpg"
+                      src={user?.avatarUrl || "/placeholder-user.jpg"}
                       alt="Profile"
                       className="cursor-pointer"
                     />
-                    <AvatarFallback>H</AvatarFallback>
+                    <AvatarFallback>
+                      {user?.name ? user.name[0] : "U"}
+                    </AvatarFallback>
                   </Avatar>
-                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-red-400">
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-red-400" onClick={handleLogout}>
                     <LogOut />
                   </Button>
                 </div>

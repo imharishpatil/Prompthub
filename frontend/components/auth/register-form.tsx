@@ -1,110 +1,126 @@
 "use client";
-import React, {useState} from "react"
-import { cn } from "@/lib/utils"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { toast } from "sonner"
-
+import React, { useState } from "react";
+import { useMutation } from "@apollo/client";
+import { SIGNUP_MUTATION } from "@/lib/gql/auth";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { Loader2Icon } from "lucide-react"
 
 // Validation utilities
 const validateEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return emailRegex.test(email)
-}
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
 
 const validatePassword = (password: string): { isValid: boolean; strength: number; feedback: string[] } => {
-  const feedback: string[] = []
-  let strength = 0
+  const feedback: string[] = [];
+  let strength = 0;
 
-  if (password.length >= 8) strength += 1
-  else feedback.push("At least 8 characters")
+  if (password.length >= 8) strength += 1;
+  else feedback.push("At least 8 characters");
 
-  if (/[A-Z]/.test(password)) strength += 1
-  else feedback.push("One uppercase letter")
+  if (/[A-Z]/.test(password)) strength += 1;
+  else feedback.push("One uppercase letter");
 
-  if (/[a-z]/.test(password)) strength += 1
-  else feedback.push("One lowercase letter")
+  if (/[a-z]/.test(password)) strength += 1;
+  else feedback.push("One lowercase letter");
 
-  if (/\d/.test(password)) strength += 1
-  else feedback.push("One number")
+  if (/\d/.test(password)) strength += 1;
+  else feedback.push("One number");
 
-  if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength += 1
-  else feedback.push("One special character")
+  if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength += 1;
+  else feedback.push("One special character");
 
   return {
     isValid: strength >= 3,
     strength: (strength / 5) * 100,
     feedback,
-  }
-}
-
+  };
+};
 
 export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
   const [formData, setFormData] = useState({
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-    })
-    const [errors, setErrors] = useState<Record<string, string>>({})
-  
-  const passwordValidation = validatePassword(formData.password)
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const passwordValidation = validatePassword(formData.password);
+
+  // Apollo mutation
+  const [signup, { loading }] = useMutation(SIGNUP_MUTATION);
 
   const validateForm = () => {
-    const newErrors: Record<string, string> = {}
+    const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = "Name is required"
+      newErrors.name = "Name is required";
     } else if (formData.name.trim().length < 2) {
-      newErrors.name = "Name must be at least 2 characters"
+      newErrors.name = "Name must be at least 2 characters";
     }
 
     if (!formData.email) {
-      newErrors.email = "Email is required"
+      newErrors.email = "Email is required";
     } else if (!validateEmail(formData.email)) {
-      newErrors.email = "Please enter a valid email address"
+      newErrors.email = "Please enter a valid email address";
     }
 
     if (!formData.password) {
-      newErrors.password = "Password is required"
+      newErrors.password = "Password is required";
     } else if (!passwordValidation.isValid) {
-      newErrors.password = "Password does not meet requirements"
+      newErrors.password = "Password does not meet requirements";
     }
 
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password"
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match"
-    }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-  
-        toast("Event has been created", {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    try {
+      const { data } = await signup({
+        variables: {
+          email: formData.email,
+          password: formData.password,
+          name: formData.name,
+        },
+      });
+
+      if (data?.signup?.token) {
+        localStorage.setItem("token", data.signup.token);
+        toast("Registration successful!", {
           description: "Welcome to PromptHub. You can now start creating and sharing prompts.",
-        })
-        
+        });
+        // Optionally redirect, e.g.:
+        // window.location.href = "/pro";
       }
-  
+    } catch (err: any) {
+      toast("Registration failed", {
+        description: err.message || "An error occurred during registration.",
+      });
+    }
+  };
 
   const getPasswordStrengthColor = (strength: number) => {
-    if (strength < 40) return "bg-red-500"
-    if (strength < 70) return "bg-yellow-500"
-    return "bg-green-500"
-  }
+    if (strength < 40) return "bg-red-500";
+    if (strength < 70) return "bg-yellow-500";
+    return "bg-green-500";
+  };
 
   const getPasswordStrengthText = (strength: number) => {
-    if (strength < 40) return "Weak"
-    if (strength < 70) return "Medium"
-    return "Strong"
-  }
-
+    if (strength < 40) return "Weak";
+    if (strength < 70) return "Medium";
+    return "Strong";
+  };
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -234,8 +250,10 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
                 <Button
                   type="submit"
                   variant="ghost"
+                  disabled={loading}
                   className="w-full bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-background"
                 >
+                  {loading && <Loader2Icon className="animate-spin mr-2" />}
                   Register
                 </Button>
               </div>

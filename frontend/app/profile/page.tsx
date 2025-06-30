@@ -1,15 +1,17 @@
 "use client";
-import React, { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Separator } from "@/components/ui/separator"
-import { toast } from "@/hooks/use-toast"
+import React, { useState } from "react";
+import { useQuery } from "@apollo/client";
+import { ME_WITH_PROMPTS_AND_FEEDBACK_QUERY } from "@/lib/gql/profile";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "@/hooks/use-toast";
 import {
   Plus,
   Share2,
@@ -24,294 +26,85 @@ import {
   GitBranch,
   ThumbsUp,
   MoreHorizontal,
-  Settings as SettingsIcon
-} from "lucide-react"
-
-// Types based on Prisma schema
-interface User {
-  id: string
-  email: string
-  name: string | null
-  avatarUrl: string | null
-  googleId: string | null
-  password: string | null
-  createdAt: string
-  updatedAt: string
-}
-
-interface Prompt {
-  id: string
-  title: string
-  content: string // Rich text content
-  tags: string[]
-  isPublic: boolean
-  authorId: string
-  author: User
-  remixOf: string | null
-  remixCount: number
-  createdAt: string
-  updatedAt: string
-  imageUrl: string | null
-  feedbacks: Feedback[]
-}
-
-interface Feedback {
-  id: string
-  userId: string
-  user: User
-  promptId: string
-  comment: string
-  rating: number // 1-5
-  createdAt: string
-}
-
-// Static Data matching schema structure
-const staticUser: User = {
-  id: "user_1",
-  email: "alex.johnson@example.com",
-  name: "Alex Johnson",
-  avatarUrl: "/placeholder.svg?height=40&width=40",
-  googleId: "google_123456789",
-  password: null, // OAuth user
-  createdAt: "2024-01-15T10:00:00Z",
-  updatedAt: "2024-01-20T15:30:00Z",
-}
-
-const staticUsers: User[] = [
-  staticUser,
-  {
-    id: "user_2",
-    email: "sarah.chen@example.com",
-    name: "Sarah Chen",
-    avatarUrl: "/placeholder.svg?height=40&width=40",
-    googleId: "google_987654321",
-    password: null,
-    createdAt: "2024-01-10T08:00:00Z",
-    updatedAt: "2024-01-18T12:00:00Z",
-  },
-  {
-    id: "user_3",
-    email: "maria.rodriguez@example.com",
-    name: "Maria Rodriguez",
-    avatarUrl: "/placeholder.svg?height=40&width=40",
-    googleId: null,
-    password: "hashed_password",
-    createdAt: "2024-01-12T14:00:00Z",
-    updatedAt: "2024-01-19T09:15:00Z",
-  },
-]
-
-const staticFeedbacks: Feedback[] = [
-  {
-    id: "feedback_1",
-    userId: "user_2",
-    user: staticUsers[1],
-    promptId: "prompt_1",
-    comment: "This is an excellent prompt for creative writing! Really helped me overcome writer's block.",
-    rating: 5,
-    createdAt: "2024-01-21T10:30:00Z",
-  },
-  {
-    id: "feedback_2",
-    userId: "user_3",
-    user: staticUsers[2],
-    promptId: "prompt_1",
-    comment: "Good structure, but could use more specific examples.",
-    rating: 4,
-    createdAt: "2024-01-20T16:45:00Z",
-  },
-  {
-    id: "feedback_3",
-    userId: "user_1",
-    user: staticUsers[0],
-    promptId: "prompt_2",
-    comment: "Perfect for code reviews! Using this in my team now.",
-    rating: 5,
-    createdAt: "2024-01-19T14:20:00Z",
-  },
-]
-
-const staticPrompts: Prompt[] = [
-  {
-    id: "prompt_1",
-    title: "Creative Writing Assistant",
-    content: `You are a creative writing assistant designed to help writers overcome blocks and develop compelling narratives.
-
-**Your Role:**
-- Provide story ideas and plot suggestions
-- Help develop complex, multi-dimensional characters
-- Suggest narrative techniques and writing styles
-- Offer constructive feedback on writing samples
-
-**Instructions:**
-1. When given a genre or theme, provide 3-5 unique story concepts
-2. For character development, create detailed backstories and motivations
-3. Always encourage creativity while maintaining narrative coherence
-4. Provide specific, actionable writing advice
-
-**Example Usage:**
-"I'm writing a sci-fi story about time travel but I'm stuck on the plot. Can you help me develop some interesting complications?"`,
-    tags: ["creative-writing", "storytelling", "characters", "plot-development"],
-    isPublic: true,
-    authorId: "user_1",
-    author: staticUser,
-    remixOf: null,
-    remixCount: 3,
-    createdAt: "2024-01-20T09:00:00Z",
-    updatedAt: "2024-01-20T09:00:00Z",
-    imageUrl: "/placeholder.svg?height=200&width=400",
-    feedbacks: staticFeedbacks.filter((f) => f.promptId === "prompt_1"),
-  },
-  {
-    id: "prompt_2",
-    title: "Code Review Expert",
-    content: `You are a senior software engineer conducting thorough code reviews.
-
-**Review Checklist:**
-- **Code Structure & Organization**
-  - Is the code well-organized and modular?
-  - Are functions/classes appropriately sized?
-  - Is there proper separation of concerns?
-
-- **Performance & Efficiency**
-  - Are there any performance bottlenecks?
-  - Can algorithms be optimized?
-  - Is memory usage efficient?
-
-- **Security Considerations**
-  - Are there potential security vulnerabilities?
-  - Is input validation proper?
-  - Are sensitive data handled correctly?
-
-- **Best Practices**
-  - Does the code follow language conventions?
-  - Is error handling comprehensive?
-  - Are there adequate tests?
-
-**Output Format:**
-Provide feedback in this structure:
-1. **Strengths:** What's done well
-2. **Issues:** Problems that need fixing
-3. **Suggestions:** Improvements and optimizations
-4. **Security:** Any security concerns
-5. **Overall Rating:** 1-10 with justification`,
-    tags: ["code-review", "programming", "best-practices", "security"],
-    isPublic: true,
-    authorId: "user_1",
-    author: staticUser,
-    remixOf: null,
-    remixCount: 1,
-    createdAt: "2024-01-18T14:30:00Z",
-    updatedAt: "2024-01-18T14:30:00Z",
-    imageUrl: null,
-    feedbacks: staticFeedbacks.filter((f) => f.promptId === "prompt_2"),
-  },
-  {
-    id: "prompt_3",
-    title: "Marketing Copy Generator Pro",
-    content: `You are a professional copywriter specializing in high-converting marketing content.
-
-**Your Expertise:**
-- Persuasive sales copy
-- Email marketing campaigns
-- Social media content
-- Landing page optimization
-- Brand voice development
-
-**Process:**
-1. **Audience Analysis:** Understand the target demographic
-2. **Value Proposition:** Identify key benefits and unique selling points
-3. **Emotional Triggers:** Incorporate psychological persuasion techniques
-4. **Call-to-Action:** Create compelling CTAs that drive conversions
-
-**Copy Types:**
-- Headlines that grab attention
-- Product descriptions that sell
-- Email subject lines with high open rates
-- Social media posts that engage
-- Ad copy that converts
-
-**Guidelines:**
-- Use active voice and strong verbs
-- Focus on benefits, not just features
-- Create urgency and scarcity when appropriate
-- A/B test different approaches
-- Maintain brand consistency`,
-    tags: ["marketing", "copywriting", "sales", "conversion", "branding"],
-    isPublic: false,
-    authorId: "user_1",
-    author: staticUser,
-    remixOf: null,
-    remixCount: 0,
-    createdAt: "2024-01-16T11:15:00Z",
-    updatedAt: "2024-01-17T16:20:00Z",
-    imageUrl: "/placeholder.svg?height=200&width=400",
-    feedbacks: [],
-  },
-]
+  Settings as SettingsIcon,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
 
 // Helper functions
-const getAverageRating = (feedbacks: Feedback[]): number => {
-  if (feedbacks.length === 0) return 0
-  const sum = feedbacks.reduce((acc, feedback) => acc + feedback.rating, 0)
-  return sum / feedbacks.length
-}
+const getAverageRating = (feedbacks: { rating: number }[]) =>
+  feedbacks.length === 0 ? 0 : feedbacks.reduce((acc, f) => acc + f.rating, 0) / feedbacks.length;
 
-const formatDate = (dateString: string): string => {
-  return new Date(dateString).toLocaleDateString()
-}
+const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString();
 
-const formatRelativeTime = (dateString: string): string => {
-  const date = new Date(dateString)
-  const now = new Date()
-  const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
-
-  if (diffInHours < 1) return "Just now"
-  if (diffInHours < 24) return `${diffInHours}h ago`
-  if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`
-  return formatDate(dateString)
-}
-const user:User = {
-  id: "user_1",
-  email: "demo@prompthub.com",
-  name: "Harish",
-  avatarUrl: null,
-  googleId:  null,
-  password:  null,
-  createdAt: "today",
-  updatedAt: "today",
-}
-
+const formatRelativeTime = (dateString: string) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+  if (diffInHours < 1) return "Just now";
+  if (diffInHours < 24) return `${diffInHours}h ago`;
+  if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`;
+  return formatDate(dateString);
+};
 
 export default function ProfilePage() {
-  const [activeTab, setActiveTab] = useState("overview")
-  const [isEditing, setIsEditing] = useState(false)
-  const [profileData, setProfileData] = useState({
-    name: user.name || "",
-    email: user.email,
-    bio: "Passionate about AI and prompt engineering. Love creating helpful prompts for the community.",
-    location: "San Francisco, CA",
-    website: "https://example.com",
-  })
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState("overview");
+  const [isEditing, setIsEditing] = useState(false);
 
-  React.useEffect(() => {
-    if (isEditing) setActiveTab("settings")
-  }, [isEditing])
+  // Fetch user and prompts from backend
+  const { data, loading, error } = useQuery(ME_WITH_PROMPTS_AND_FEEDBACK_QUERY);
 
-  const userPrompts = staticPrompts.filter((p) => p.authorId === user.id)
-  const totalFeedbacks = userPrompts.reduce((sum, prompt) => sum + prompt.feedbacks.length, 0)
-  const totalRemixes = userPrompts.reduce((sum, prompt) => sum + prompt.remixCount, 0)
+  // Always define state, even if data is not ready yet!
+  const user = data?.me;
+  const userPrompts = user?.prompts ?? [];
+  const totalFeedbacks = userPrompts.reduce((sum: number, prompt: any) => sum + (prompt.feedbacks?.length || 0), 0);
+  const totalRemixes = userPrompts.reduce((sum: number, prompt: any) => sum + (prompt.remixCount || 0), 0);
   const avgRating =
     userPrompts.length > 0
-      ? userPrompts.reduce((sum, prompt) => sum + getAverageRating(prompt.feedbacks), 0) / userPrompts.length
-      : 0
+      ? userPrompts.reduce((sum: number, prompt: any) => sum + getAverageRating(prompt.feedbacks || []), 0) /
+        userPrompts.length
+      : 0;
+
+  const [profileData, setProfileData] = useState({
+    name: user?.name || "",
+    email: user?.email || "",
+    bio: "",
+    location: "",
+    website: "",
+  });
+
+  React.useEffect(() => {
+    if (user) {
+      setProfileData((prev) => ({
+        ...prev,
+        name: user.name || "",
+        email: user.email || "",
+      }));
+    }
+  }, [user]);
+
+  React.useEffect(() => {
+    if (isEditing) setActiveTab("settings");
+  }, [isEditing]);
 
   const handleSave = () => {
-    setIsEditing(false)
+    setIsEditing(false);
     toast({
       title: "Profile updated!",
       description: "Your profile has been updated successfully.",
-    })
+    });
+    // TODO: Send mutation to backend to update profile
+  };
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+  if (error || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-red-500">
+        {error?.message || "User not found or not authenticated."}
+      </div>
+    );
   }
 
   return (
@@ -324,10 +117,7 @@ export default function ProfilePage() {
               <Avatar className="h-24 w-24 bg-muted">
                 <AvatarImage src={user.avatarUrl || "/placeholder.svg"} alt={user.name || "User"} />
                 <AvatarFallback className="text-2xl text-foreground bg-muted">
-                  {user.name
-                    ?.split(" ")
-                    .map((n) => n[0])
-                    .join("") || "U"}
+                  {user.name?.split(" ").map((n: string) => n[0]).join("") || "U"}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
@@ -374,74 +164,40 @@ export default function ProfilePage() {
           <div className="lg:col-span-3">
             <Card className="bg-card border border-border">
               <CardHeader>
-  <Tabs value={activeTab} onValueChange={setActiveTab}>
-    <div className="relative">
-      <TabsList
-        className="
-          grid w-full grid-cols-4 bg-muted
-        "
-        style={{ minWidth: 0 }}
-      >
-        <TabsTrigger
-          value="overview"
-          className={
-            activeTab === "overview"
-              ? "bg-primary text-primary-foreground h-full rounded-lg flex flex-col items-center"
-              : "flex flex-col items-center"
-          }
-        >
-          <span className="block sm:hidden">
-            <Award className="h-5 w-5" />
-          </span>
-          <span className="hidden sm:inline">Overview</span>
-        </TabsTrigger>
-        <TabsTrigger
-          value="prompts"
-          className={
-            activeTab === "prompts"
-              ? "bg-primary text-primary-foreground h-full rounded-lg flex flex-col items-center"
-              : "flex flex-col items-center"
-          }
-        >
-          <span className="block sm:hidden">
-            <Edit3 className="h-5 w-5" />
-          </span>
-          <span className="hidden sm:inline">My Prompts</span>
-        </TabsTrigger>
-        <TabsTrigger
-          value="feedback"
-          className={
-            activeTab === "feedback"
-              ? "bg-primary text-primary-foreground h-full rounded-lg flex flex-col items-center"
-              : " flex flex-col items-center"
-          }
-        >
-          <span className="block sm:hidden">
-            <MessageCircle className="h-5 w-5" />
-          </span>
-          <span className="hidden sm:inline">Feedback</span>
-        </TabsTrigger>
-        <TabsTrigger
-          value="settings"
-          className={
-            activeTab === "settings"
-              ? "bg-primary text-primary-foreground h-full rounded-lg flex flex-col items-center"
-              : "flex flex-col items-center"
-          }
-        >
-          <span className="block sm:hidden">
-            <SettingsIcon className="h-5 w-5" />
-          </span>
-          <span className="hidden sm:inline">Settings</span>
-        </TabsTrigger>
-      </TabsList>
-      {/* Optional: subtle gradient fade on mobile for overflow */}
-      <div className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-muted to-transparent sm:hidden" />
-    </div>
-  </Tabs>
-</CardHeader>
+                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                  <div className="relative">
+                    <TabsList className="grid w-full grid-cols-4 bg-muted" style={{ minWidth: 0 }}>
+                      <TabsTrigger
+                        value="overview"
+                        className={activeTab === "overview" ? "bg-primary/10 h-full rounded-lg" : ""}
+                      >
+                        Overview
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="prompts"
+                        className={activeTab === "prompts" ? "bg-primary/10 h-full rounded-lg" : ""}
+                      >
+                        My Prompts
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="feedback"
+                        className={activeTab === "feedback" ? "bg-primary/10 h-full rounded-lg" : ""}
+                      >
+                        Feedback
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="settings"
+                        className={activeTab === "settings" ? "bg-primary/10 h-full rounded-lg" : ""}
+                      >
+                        Settings
+                      </TabsTrigger>
+                    </TabsList>
+                  </div>
+                </Tabs>
+              </CardHeader>
               <CardContent>
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
+                  {/* Overview Tab */}
                   <TabsContent value="overview" className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <Card className="bg-card border border-border">
@@ -493,7 +249,7 @@ export default function ProfilePage() {
                                 <p className="text-xs text-muted-foreground">Created your first prompt</p>
                               </div>
                             </div>
-                            {userPrompts.some((p) => p.isPublic) && (
+                            {userPrompts.some((p: any) => p.isPublic) && (
                               <div className="flex items-center space-x-3">
                                 <div className="p-2 bg-blue-100 rounded-full">
                                   <Users className="h-4 w-4 text-blue-600" />
@@ -536,7 +292,7 @@ export default function ProfilePage() {
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-4">
-                          {userPrompts.slice(0, 5).map((prompt, index) => (
+                          {userPrompts.slice(0, 5).map((prompt: any) => (
                             <div key={prompt.id} className="flex items-center space-x-3 text-sm">
                               <div className="w-2 h-2 bg-blue rounded-full" />
                               <span className="text-foreground">
@@ -555,86 +311,76 @@ export default function ProfilePage() {
                       <Button
                         size="sm"
                         className="flex gap-0 py-1 bg-primary text-primary-foreground hover:bg-primary/90"
-                        onClick={() => window.dispatchEvent(new CustomEvent("navigate", { detail: "create" }))}
+                        onClick={() => router.push("/create")}
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         New Prompt
                       </Button>
                     </div>
                     <div className="space-y-4">
-                      {userPrompts.map((prompt) => {
-                        const avgRating = getAverageRating(prompt.feedbacks)
+                      {userPrompts.map((prompt: any) => {
+                        const avgRating = getAverageRating(prompt.feedbacks || []);
                         return (
-<Card key={prompt.id} className="bg-card border border-border">
-  <CardContent className="p-4">
-    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-      <div className="flex-1">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 mb-2">
-          <h4 className="font-medium text-foreground truncate text-sm md:text-base lg:text-lg">{prompt.title}</h4>
-          <div className="flex flex-row flex-wrap gap-1 mt-1 sm:mt-0">
-            <Badge
-              variant="secondary"
-              className="px-2 py-0.5 text-xs md:text-sm"
-            >
-              {prompt.isPublic ? "Public" : "Private"}
-            </Badge>
-            {prompt.remixOf && (
-              <Badge
-                variant="outline"
-                className="px-2 py-0.5 text-xs md:text-sm flex items-center"
-              >
-                <GitBranch className="h-3 w-3 mr-1" />
-                Remix
-              </Badge>
-            )}
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-1 mb-3">
-          {prompt.tags.slice(0, 4).map((tag) => (
-            <Badge
-              key={tag}
-              variant="outline"
-              className="text-xs md:text-sm  font-light px-2 py-0.5"
-            >
-              {tag}
-            </Badge>
-          ))}
-        </div>
-        <div className="flex justify-between md:justify-start md:gap-2 lg:gap-4 text-xs md:text-sm lg:text-base text-muted-foreground">
-          {avgRating > 0 && (
-            <span className="flex items-center">
-              <Star className="h-3 w-3 md:h-4 md:w-4 mr-1 fill-yellow-400 text-yellow-400" />
-              {avgRating.toFixed(1)}
-            </span>
-          )}
-          <span className="flex items-center">
-            <MessageCircle className="h-3 w-3 md:h-4 md:w-4 mr-1" />
-            {prompt.feedbacks.length}
-          </span>
-          {prompt.remixCount > 0 && (
-            <span className="flex items-center">
-              <GitBranch className="h-3 w-3 md:h-4 md:w-4 mr-1" />
-              {prompt.remixCount}
-            </span>
-          )}
-          <span>{formatDate(prompt.createdAt)}</span>
-        </div>
-      </div>
-      <div className="flex flex-row gap-2 mt-3 sm:mt-0">
-        <Button size="sm" variant="outline" className="text-xs md:text-sm">
-          <Edit3 className="h-4 w-4" />
-        </Button>
-        <Button size="sm" variant="outline" className="text-xs md:text-sm">
-          <Share2 className="h-4 w-4" />
-        </Button>
-        <Button size="sm" variant="outline" className="text-xs md:text-sm">
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </div>
-    </div>
-  </CardContent>
-</Card>
-                        )
+                          <Card key={prompt.id} className="bg-card border border-border">
+                            <CardContent className="p-4">
+                              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                                <div className="flex-1">
+                                  <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 mb-2">
+                                    <h4 className="font-medium text-foreground truncate text-sm md:text-base lg:text-lg">{prompt.title}</h4>
+                                    <div className="flex flex-row flex-wrap gap-1 mt-1 sm:mt-0">
+                                      <Badge variant="secondary" className="px-2 py-0.5 text-xs md:text-sm">
+                                        {prompt.isPublic ? "Public" : "Private"}
+                                      </Badge>
+                                      {prompt.remixOf && (
+                                        <Badge variant="outline" className="px-2 py-0.5 text-xs md:text-sm flex items-center">
+                                          <GitBranch className="h-3 w-3 mr-1" />
+                                          Remix
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="flex flex-wrap gap-1 mb-3">
+                                    {prompt.tags.slice(0, 4).map((tag: string) => (
+                                      <Badge key={tag} variant="outline" className="text-xs md:text-sm font-light px-2 py-0.5">
+                                        {tag}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                  <div className="flex justify-between md:justify-start md:gap-2 lg:gap-4 text-xs md:text-sm lg:text-base text-muted-foreground">
+                                    {avgRating > 0 && (
+                                      <span className="flex items-center">
+                                        <Star className="h-3 w-3 md:h-4 md:w-4 mr-1 fill-yellow-400 text-yellow-400" />
+                                        {avgRating.toFixed(1)}
+                                      </span>
+                                    )}
+                                    <span className="flex items-center">
+                                      <MessageCircle className="h-3 w-3 md:h-4 md:w-4 mr-1" />
+                                      {prompt.feedbacks.length}
+                                    </span>
+                                    {prompt.remixCount > 0 && (
+                                      <span className="flex items-center">
+                                        <GitBranch className="h-3 w-3 md:h-4 md:w-4 mr-1" />
+                                        {prompt.remixCount}
+                                      </span>
+                                    )}
+                                    <span>{formatDate(prompt.createdAt)}</span>
+                                  </div>
+                                </div>
+                                <div className="flex flex-row gap-2 mt-3 sm:mt-0">
+                                  <Button size="sm" variant="outline" className="text-xs md:text-sm">
+                                    <Edit3 className="h-4 w-4" />
+                                  </Button>
+                                  <Button size="sm" variant="outline" className="text-xs md:text-sm">
+                                    <Share2 className="h-4 w-4" />
+                                  </Button>
+                                  <Button size="sm" variant="outline" className="text-xs md:text-sm">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
                       })}
                     </div>
                   </TabsContent>
@@ -643,8 +389,8 @@ export default function ProfilePage() {
                       <h3 className="text-lg font-medium text-foreground">Feedback Received ({totalFeedbacks})</h3>
                     </div>
                     <div className="space-y-4">
-                      {userPrompts.flatMap((prompt) =>
-                        prompt.feedbacks.map((feedback) => (
+                      {userPrompts.flatMap((prompt: any) =>
+                        (prompt.feedbacks || []).map((feedback: any) => (
                           <Card key={feedback.id} className="bg-card border border-border">
                             <CardContent className="p-4">
                               <div className="flex items-start space-x-4">
@@ -656,7 +402,7 @@ export default function ProfilePage() {
                                   <AvatarFallback className="text-foreground">
                                     {feedback.user.name
                                       ?.split(" ")
-                                      .map((n) => n[0])
+                                      .map((n: string) => n[0])
                                       .join("") || "U"}
                                   </AvatarFallback>
                                 </Avatar>
@@ -885,7 +631,7 @@ export default function ProfilePage() {
                     </div>
                     <div className="text-xs text-muted-foreground">Creator</div>
                   </div>
-                  {userPrompts.some((p) => p.isPublic) && (
+                  {userPrompts.some((p: any) => p.isPublic) && (
                     <div className="text-center">
                       <div className="p-3 bg-blue-100 rounded-full w-12 h-12 mx-auto mb-2">
                         <Users className="h-6 w-6 text-blue-600" />
@@ -916,5 +662,5 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,5 +1,7 @@
 "use client"
 import React, { useState } from "react"
+import { useMutation } from "@apollo/client"
+import { CREATE_PROMPT_MUTATION } from "@/lib/gql/create"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -8,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
-import { toast } from "@/hooks/use-toast"
+import { toast } from "sonner"
 import {
   X,
   Star,
@@ -18,370 +20,7 @@ import {
   ImageIcon,
   Upload,
   GitBranch,
-  
 } from "lucide-react"
-
-// Types based on Prisma schema
-interface User {
-  id: string
-  email: string
-  name: string | null
-  avatarUrl: string | null
-  googleId: string | null
-  password: string | null
-  createdAt: string
-  updatedAt: string
-}
-
-interface Prompt {
-  id: string
-  title: string
-  content: string // Rich text content
-  tags: string[]
-  isPublic: boolean
-  authorId: string
-  author: User
-  remixOf: string | null
-  remixCount: number
-  createdAt: string
-  updatedAt: string
-  imageUrl: string | null
-  feedbacks: Feedback[]
-}
-
-interface Feedback {
-  id: string
-  userId: string
-  user: User
-  promptId: string
-  comment: string
-  rating: number // 1-5
-  createdAt: string
-}
-
-// Static Data matching schema structure
-const staticUser: User = {
-  id: "user_1",
-  email: "alex.johnson@example.com",
-  name: "Alex Johnson",
-  avatarUrl: "/placeholder.svg?height=40&width=40",
-  googleId: "google_123456789",
-  password: null, // OAuth user
-  createdAt: "2024-01-15T10:00:00Z",
-  updatedAt: "2024-01-20T15:30:00Z",
-}
-
-const staticUsers: User[] = [
-  staticUser,
-  {
-    id: "user_2",
-    email: "sarah.chen@example.com",
-    name: "Sarah Chen",
-    avatarUrl: "/placeholder.svg?height=40&width=40",
-    googleId: "google_987654321",
-    password: null,
-    createdAt: "2024-01-10T08:00:00Z",
-    updatedAt: "2024-01-18T12:00:00Z",
-  },
-  {
-    id: "user_3",
-    email: "maria.rodriguez@example.com",
-    name: "Maria Rodriguez",
-    avatarUrl: "/placeholder.svg?height=40&width=40",
-    googleId: null,
-    password: "hashed_password",
-    createdAt: "2024-01-12T14:00:00Z",
-    updatedAt: "2024-01-19T09:15:00Z",
-  },
-]
-
-const staticFeedbacks: Feedback[] = [
-  {
-    id: "feedback_1",
-    userId: "user_2",
-    user: staticUsers[1],
-    promptId: "prompt_1",
-    comment: "This is an excellent prompt for creative writing! Really helped me overcome writer's block.",
-    rating: 5,
-    createdAt: "2024-01-21T10:30:00Z",
-  },
-  {
-    id: "feedback_2",
-    userId: "user_3",
-    user: staticUsers[2],
-    promptId: "prompt_1",
-    comment: "Good structure, but could use more specific examples.",
-    rating: 4,
-    createdAt: "2024-01-20T16:45:00Z",
-  },
-  {
-    id: "feedback_3",
-    userId: "user_1",
-    user: staticUsers[0],
-    promptId: "prompt_2",
-    comment: "Perfect for code reviews! Using this in my team now.",
-    rating: 5,
-    createdAt: "2024-01-19T14:20:00Z",
-  },
-]
-
-const staticPrompts: Prompt[] = [
-  {
-    id: "prompt_1",
-    title: "Creative Writing Assistant",
-    content: `You are a creative writing assistant designed to help writers overcome blocks and develop compelling narratives.
-
-**Your Role:**
-- Provide story ideas and plot suggestions
-- Help develop complex, multi-dimensional characters
-- Suggest narrative techniques and writing styles
-- Offer constructive feedback on writing samples
-
-**Instructions:**
-1. When given a genre or theme, provide 3-5 unique story concepts
-2. For character development, create detailed backstories and motivations
-3. Always encourage creativity while maintaining narrative coherence
-4. Provide specific, actionable writing advice
-
-**Example Usage:**
-"I'm writing a sci-fi story about time travel but I'm stuck on the plot. Can you help me develop some interesting complications?"`,
-    tags: ["creative-writing", "storytelling", "characters", "plot-development"],
-    isPublic: true,
-    authorId: "user_1",
-    author: staticUser,
-    remixOf: null,
-    remixCount: 3,
-    createdAt: "2024-01-20T09:00:00Z",
-    updatedAt: "2024-01-20T09:00:00Z",
-    imageUrl: "/placeholder.svg?height=200&width=400",
-    feedbacks: staticFeedbacks.filter((f) => f.promptId === "prompt_1"),
-  },
-  {
-    id: "prompt_2",
-    title: "Code Review Expert",
-    content: `You are a senior software engineer conducting thorough code reviews.
-
-**Review Checklist:**
-- **Code Structure & Organization**
-  - Is the code well-organized and modular?
-  - Are functions/classes appropriately sized?
-  - Is there proper separation of concerns?
-
-- **Performance & Efficiency**
-  - Are there any performance bottlenecks?
-  - Can algorithms be optimized?
-  - Is memory usage efficient?
-
-- **Security Considerations**
-  - Are there potential security vulnerabilities?
-  - Is input validation proper?
-  - Are sensitive data handled correctly?
-
-- **Best Practices**
-  - Does the code follow language conventions?
-  - Is error handling comprehensive?
-  - Are there adequate tests?
-
-**Output Format:**
-Provide feedback in this structure:
-1. **Strengths:** What's done well
-2. **Issues:** Problems that need fixing
-3. **Suggestions:** Improvements and optimizations
-4. **Security:** Any security concerns
-5. **Overall Rating:** 1-10 with justification`,
-    tags: ["code-review", "programming", "best-practices", "security"],
-    isPublic: true,
-    authorId: "user_1",
-    author: staticUser,
-    remixOf: null,
-    remixCount: 1,
-    createdAt: "2024-01-18T14:30:00Z",
-    updatedAt: "2024-01-18T14:30:00Z",
-    imageUrl: null,
-    feedbacks: staticFeedbacks.filter((f) => f.promptId === "prompt_2"),
-  },
-  {
-    id: "prompt_3",
-    title: "Marketing Copy Generator Pro",
-    content: `You are a professional copywriter specializing in high-converting marketing content.
-
-**Your Expertise:**
-- Persuasive sales copy
-- Email marketing campaigns
-- Social media content
-- Landing page optimization
-- Brand voice development
-
-**Process:**
-1. **Audience Analysis:** Understand the target demographic
-2. **Value Proposition:** Identify key benefits and unique selling points
-3. **Emotional Triggers:** Incorporate psychological persuasion techniques
-4. **Call-to-Action:** Create compelling CTAs that drive conversions
-
-**Copy Types:**
-- Headlines that grab attention
-- Product descriptions that sell
-- Email subject lines with high open rates
-- Social media posts that engage
-- Ad copy that converts
-
-**Guidelines:**
-- Use active voice and strong verbs
-- Focus on benefits, not just features
-- Create urgency and scarcity when appropriate
-- A/B test different approaches
-- Maintain brand consistency`,
-    tags: ["marketing", "copywriting", "sales", "conversion", "branding"],
-    isPublic: false,
-    authorId: "user_1",
-    author: staticUser,
-    remixOf: null,
-    remixCount: 0,
-    createdAt: "2024-01-16T11:15:00Z",
-    updatedAt: "2024-01-17T16:20:00Z",
-    imageUrl: "/placeholder.svg?height=200&width=400",
-    feedbacks: [],
-  },
-]
-
-const featuredPrompts: Prompt[] = [
-  {
-    id: "prompt_4",
-    title: "Data Analysis Wizard",
-    content: `You are a data scientist expert in statistical analysis and data visualization.
-
-**Analysis Framework:**
-1. **Data Exploration**
-   - Examine data structure and quality
-   - Identify missing values and outliers
-   - Understand variable distributions
-
-2. **Statistical Analysis**
-   - Descriptive statistics
-   - Correlation analysis
-   - Hypothesis testing
-   - Regression modeling
-
-3. **Visualization Strategy**
-   - Choose appropriate chart types
-   - Create compelling narratives
-   - Highlight key insights
-
-4. **Actionable Insights**
-   - Translate findings into business recommendations
-   - Identify trends and patterns
-   - Suggest next steps
-
-**Tools & Techniques:**
-- Python/R for analysis
-- Tableau/PowerBI for visualization
-- Statistical modeling
-- Machine learning applications`,
-    tags: ["data-analysis", "statistics", "visualization", "python", "insights"],
-    isPublic: true,
-    authorId: "user_2",
-    author: staticUsers[1],
-    remixOf: null,
-    remixCount: 5,
-    createdAt: "2024-01-22T08:45:00Z",
-    updatedAt: "2024-01-22T08:45:00Z",
-    imageUrl: "/placeholder.svg?height=200&width=400",
-    feedbacks: [],
-  },
-  {
-    id: "prompt_5",
-    title: "Language Learning Companion",
-    content: `You are an experienced language tutor providing personalized learning experiences.
-
-**Teaching Methodology:**
-- **Immersive Conversations:** Practice real-world scenarios
-- **Grammar in Context:** Learn rules through practical usage
-- **Cultural Integration:** Understand cultural nuances
-- **Progressive Difficulty:** Adapt to learner's level
-
-**Lesson Structure:**
-1. **Warm-up:** Review previous concepts
-2. **New Material:** Introduce new vocabulary/grammar
-3. **Practice:** Interactive exercises and conversations
-4. **Application:** Real-world usage scenarios
-5. **Feedback:** Corrections and encouragement
-
-**Specializations:**
-- Business language skills
-- Travel and tourism vocabulary
-- Academic writing
-- Pronunciation coaching
-- Cultural communication`,
-    tags: ["language-learning", "education", ",conversation", "tutoring", "culture"],
-    isPublic: true,
-    authorId: "user_3",
-    author: staticUsers[2],
-    remixOf: null,
-    remixCount: 2,
-    createdAt: "2024-01-21T13:20:00Z",
-    updatedAt: "2024-01-21T13:20:00Z",
-    imageUrl: null,
-    feedbacks: [],
-  },
-  {
-    id: "prompt_6",
-    title: "Enhanced Creative Writing Assistant",
-    content: `You are an advanced creative writing assistant with specialized expertise in narrative development.
-
-**Enhanced Features:**
-- Character psychology and development
-- World-building for fantasy/sci-fi
-- Dialogue authenticity
-- Plot structure optimization
-- Genre-specific techniques
-
-**This is a remix of the original Creative Writing Assistant with additional focus on:**
-- Advanced character development techniques
-- Detailed world-building frameworks
-- Genre-specific writing conventions
-- Publishing industry insights
-
-**New Capabilities:**
-1. **Character Archetypes:** Create compelling character templates
-2. **World Consistency:** Maintain logical world rules
-3. **Pacing Control:** Balance action and exposition
-4. **Market Awareness:** Understand current publishing trends`,
-    tags: ["creative-writing", "storytelling", "characters", "world-building", "advanced"],
-    isPublic: true,
-    authorId: "user_2",
-    author: staticUsers[1],
-    remixOf: "prompt_1", // This is a remix of the Creative Writing Assistant
-    remixCount: 0,
-    createdAt: "2024-01-23T10:15:00Z",
-    updatedAt: "2024-01-23T10:15:00Z",
-    imageUrl: "/placeholder.svg?height=200&width=400",
-    feedbacks: [],
-  },
-]
-
-// Helper functions
-const getAverageRating = (feedbacks: Feedback[]): number => {
-  if (feedbacks.length === 0) return 0
-  const sum = feedbacks.reduce((acc, feedback) => acc + feedback.rating, 0)
-  return sum / feedbacks.length
-}
-
-const formatDate = (dateString: string): string => {
-  return new Date(dateString).toLocaleDateString()
-}
-
-const formatRelativeTime = (dateString: string): string => {
-  const date = new Date(dateString)
-  const now = new Date()
-  const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
-
-  if (diffInHours < 1) return "Just now"
-  if (diffInHours < 24) return `${diffInHours}h ago`
-  if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`
-  return formatDate(dateString)
-}
-
-
 
 export default function CreatePage() {
   const [activeTab, setActiveTab] = useState("editor")
@@ -394,65 +33,143 @@ export default function CreatePage() {
     imageUrl: null as string | null,
   })
   const [isUploading, setIsUploading] = useState(false)
-
-  const handleSave = () => {
-    toast({
-      title: "Prompt saved!",
-      description: "Your prompt has been saved as a draft.",
-    })
-  }
-
-  const handlePublish = () => {
-    if (!promptData.title.trim() || !promptData.content.trim()) {
-      toast({
-        title: "Missing required fields",
-        description: "Please add a title and content before publishing.",
-        variant: "destructive",
-      })
-      return
-    }
-
-    toast({
-      title: "Prompt published!",
-      description: "Your prompt is now available to the community.",
-    })
-  }
-
-  const handleImageUpload = () => {
-    setIsUploading(true)
-    setTimeout(() => {
-      setPromptData({ ...promptData, imageUrl: "/placeholder.svg?height=200&width=400" })
-      setIsUploading(false)
-      toast({
-        title: "Image uploaded!",
-        description: "Your image has been added to the prompt.",
-      })
-    }, 2000)
-  }
-
-  const handleRemix = (originalPromptId: string) => {
-    const originalPrompt = [...staticPrompts, ...featuredPrompts].find((p) => p.id === originalPromptId)
-    if (originalPrompt) {
-      setPromptData({
-        title: `Enhanced ${originalPrompt.title}`,
-        content: originalPrompt.content,
-        tags: originalPrompt.tags.join(", "),
-        isPublic: true,
-        remixOf: originalPromptId,
-        imageUrl: originalPrompt.imageUrl,
-      })
-      toast({
-        title: "Prompt loaded for remix!",
-        description: "You can now modify and enhance the original prompt.",
-      })
-    }
-  }
+  const [createPrompt, { loading }] = useMutation(CREATE_PROMPT_MUTATION)
 
   const parseTagsFromString = (tagsString: string): string[] => {
     return tagsString
       .split(",")
       .map((tag) => tag.trim())
       .filter((tag) => tag.length > 0)
+  }
+
+  const handlePublish = async () => {
+    if (!promptData.title.trim() && !promptData.content.trim()) {
+      toast("Missing required fields", {
+        description: "Please add a title and content before publishing.",
+      })
+      return
+    }
+    if (!promptData.title.trim()) {
+      toast("Title required", {
+        description: "Please enter a title for your prompt.",
+      })
+      return
+    }
+    if (!promptData.content.trim()) {
+      toast("Content required", {
+        description: "Please enter the content for your prompt.",
+      })
+      return
+    }
+    try {
+      const { data } = await createPrompt({
+        variables: {
+          title: promptData.title,
+          content: promptData.content,
+          tags: parseTagsFromString(promptData.tags),
+          isPublic: promptData.isPublic,
+          remixOf: promptData.remixOf,
+          imageUrl: promptData.imageUrl,
+        },
+      })
+      toast("Prompt published!", {
+        description: "Your prompt is now available to the community.",
+      })
+      setPromptData({
+        title: "",
+        content: "",
+        tags: "",
+        isPublic: true,
+        remixOf: null,
+        imageUrl: null,
+      })
+    } catch (err: any) {
+      toast("Failed to publish prompt", {
+        description: err.message || "An error occurred.",
+      })
+    }
+  }
+
+  async function handleImageUpload(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    event.preventDefault()
+    const input = document.createElement("input")
+    input.type = "file"
+    input.accept = "image/png, image/jpeg"
+    input.onchange = async (e: any) => {
+      const file = e.target.files?.[0]
+      if (!file) return
+      if (file.size > 5 * 1024 * 1024) {
+        toast("File too large", {
+          description: "Please select an image smaller than 5MB.",
+        })
+        return
+      }
+      setIsUploading(true)
+      try {
+        await new Promise((res) => setTimeout(res, 1200))
+        const imageUrl = URL.createObjectURL(file)
+        setPromptData((prev) => ({ ...prev, imageUrl }))
+        toast("Image uploaded!", {
+          description: "Your image has been attached to the prompt.",
+        })
+      } catch (err: any) {
+        toast("Upload failed", {
+          description: err.message || "Could not upload image.",
+        })
+      } finally {
+        setIsUploading(false)
+      }
+    }
+    input.click()
+  }
+
+  async function handleSave(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    event.preventDefault()
+    if (!promptData.title.trim() && !promptData.content.trim()) {
+      toast("Nothing to save", {
+        description: "Please enter a title or content before saving a draft.",
+      })
+      return
+    }
+    if (!promptData.title.trim()) {
+      toast("Title required", {
+        description: "Please enter a title for your draft.",
+      })
+      return
+    }
+    if (!promptData.content.trim()) {
+      toast("Content required", {
+        description: "Please enter the content for your draft.",
+      })
+      return
+    }
+    try {
+      await new Promise((res) => setTimeout(res, 800))
+      toast("Draft saved!", {
+        description: "Your prompt draft has been saved locally.",
+      })
+      // Optionally, save to localStorage or backend
+    } catch (err: any) {
+      toast("Failed to save draft", {
+        description: err.message || "An error occurred.",
+      })
+    }
+  }
+
+  function handleRemix(remixOf: string): void {
+    setPromptData((prev) => ({
+      ...prev,
+      remixOf,
+      title: "",
+      content: "",
+      tags: "",
+      imageUrl: null,
+      isPublic: true,
+    }))
+    setActiveTab("editor")
+    toast("Remix mode enabled", {
+      description: "You are now remixing an existing prompt. Start editing to make it your own.",
+    })
   }
 
   return (
@@ -694,7 +411,7 @@ export default function CreatePage() {
                   <Save className="h-4 w-4 mr-2" />
                   Save Draft
                 </Button>
-                <Button onClick={handlePublish} className="flex w-full bg-primary text-primary-foreground">
+                <Button onClick={handlePublish} className="flex w-full bg-primary text-primary-foreground" disabled={loading}>
                   <Globe className="h-4 w-4 mr-2" />
                   {promptData.isPublic ? "Publish Prompt" : "Save Private"}
                 </Button>

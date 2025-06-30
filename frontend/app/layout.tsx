@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import { Navbar } from "@/components/layout/Navbar";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
+import { ApolloWrapper } from "./ApolloWrapper";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -21,11 +22,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
+        <ApolloWrapper>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <Navbar />
             {children}
             <Toaster />
-        </ThemeProvider>    
+        </ThemeProvider>
+        </ApolloWrapper>    
       </body>
     </html>
   );

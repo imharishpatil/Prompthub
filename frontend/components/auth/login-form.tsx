@@ -1,12 +1,59 @@
-import type React from "react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+"use client";
+import React, { useState } from "react";
+import { useMutation } from "@apollo/client";
+import { LOGIN_MUTATION } from "@/lib/gql/auth";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { Loader2Icon } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
+  const router = useRouter();
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [login, { loading }] = useMutation(LOGIN_MUTATION);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors({});
+    if (!formData.email) {
+      setErrors((prev) => ({ ...prev, email: "Email is required" }));
+      return;
+    }
+    if (!formData.password) {
+      setErrors((prev) => ({ ...prev, password: "Password is required" }));
+      return;
+    }
+    try {
+      const { data } = await login({
+        variables: {
+          email: formData.email,
+          password: formData.password,
+        },
+      });
+      if (data?.login?.token) {
+        localStorage.setItem("token", data.login.token);
+        document.cookie = `token=${data.login.token}; path=/; max-age=604800`; // <-- Add this line
+        if (data.login.user && typeof data.login.user === "object") {
+          localStorage.setItem("user", JSON.stringify(data.login.user));
+        }
+        toast("Login successful!", {
+          description: "Welcome back to PromptHub.",
+        });
+        router.push("/dashboard");
+      }
+    } catch (err: any) {
+      toast("Login failed", {
+        description: err.message || "An error occurred during login.",
+      });
+    }
+  };
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="bg-card border border-border shadow-lg">
@@ -15,9 +62,9 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
           <CardDescription className="text-muted-foreground">Login with your Google account</CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={handleSubmit}>
             <div className="grid gap-6">
-              <Button variant="outline" className="w-full flex bg-muted hover:bg-muted/80 text-foreground border-border">
+              <Button variant="outline" className="w-full flex bg-muted hover:bg-muted/80 text-foreground border-border" type="button">
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                   <path
                     fill="#4285F4"
@@ -44,19 +91,43 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
               <div className="grid gap-6">
                 <div className="grid gap-2">
                   <Label htmlFor="email" className="text-foreground">Email</Label>
-                  <Input id="email" type="email" placeholder="m@example.com" required className="bg-muted text-foreground border-border" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="m@example.com"
+                    required
+                    className="bg-muted text-foreground border-border"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  />
+                  {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
                 </div>
                 <div className="grid gap-2">
                   <div className="flex items-center">
                     <Label htmlFor="password" className="text-foreground">Password</Label>
                   </div>
-                  <Input id="password" type="password" required placeholder="********" className="bg-muted text-foreground border-border" />
+                  <Input
+                    id="password"
+                    type="password"
+                    required
+                    placeholder="********"
+                    className="bg-muted text-foreground border-border"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  />
+                  {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
                   <a href="#" className="ml-auto text-sm text-primary underline-offset-4 hover:underline">
                     Forgot your password?
                   </a>
                 </div>
-                <Button type="submit" variant="ghost" className="w-full bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-background">
-                  Login
+                <Button
+                  type="submit"
+                  variant="ghost"
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-background"
+                  disabled={loading}
+                >
+                  {loading && <Loader2Icon className="animate-spin mr-2" />}  
+                  {loading ? "Logging in..." : "Login"}
                 </Button>
               </div>
               <div className="text-center text-sm text-muted-foreground">
@@ -71,5 +142,5 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
         By clicking continue, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
       </div>
     </div>
-  )
+  );
 }

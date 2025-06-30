@@ -9,14 +9,14 @@ export async function middleware(req: NextRequest) {
   const isProtected = protectedRoutes.some((route) => pathname.startsWith(route))
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route))
 
-  // Check for auth token in cookies or localStorage (handled client-side)
-  const authToken = req.cookies.get("auth_token")?.value
+  // Check for auth token in cookies (middleware cannot access localStorage)
+  const authToken = req.cookies.get("token")?.value // <-- Use the same key you set in your app, e.g. "token"
 
-  // If accessing protected route without token, redirect to sign-in
+  // If accessing protected route without token, redirect to your login page
   if (isProtected && !authToken) {
-    const signInUrl = new URL("/auth/signin", req.url)
-    signInUrl.searchParams.set("callbackUrl", pathname)
-    return NextResponse.redirect(signInUrl)
+    const loginUrl = new URL("/login", req.url)
+    loginUrl.searchParams.set("callbackUrl", pathname)
+    return NextResponse.redirect(loginUrl)
   }
 
   // If accessing auth routes with token, redirect to dashboard

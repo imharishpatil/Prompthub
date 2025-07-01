@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import Link from "next/link";
 import { useQuery } from "@apollo/client";
 import { ME_WITH_PROMPTS_AND_FEEDBACK_QUERY } from "@/lib/gql/profile";
 import { Button } from "@/components/ui/button";
@@ -169,25 +170,25 @@ export default function ProfilePage() {
                     <TabsList className="grid w-full grid-cols-4 bg-muted" style={{ minWidth: 0 }}>
                       <TabsTrigger
                         value="overview"
-                        className={activeTab === "overview" ? "bg-primary/10 h-full rounded-lg" : ""}
+                        className={activeTab === "overview" ? "bg-primary/10 h-full rounded-lg" : "cursor-pointer"}
                       >
                         Overview
                       </TabsTrigger>
                       <TabsTrigger
                         value="prompts"
-                        className={activeTab === "prompts" ? "bg-primary/10 h-full rounded-lg" : ""}
+                        className={activeTab === "prompts" ? "bg-primary/10 h-full rounded-lg" : "cursor-pointer"}
                       >
                         My Prompts
                       </TabsTrigger>
                       <TabsTrigger
                         value="feedback"
-                        className={activeTab === "feedback" ? "bg-primary/10 h-full rounded-lg" : ""}
+                        className={activeTab === "feedback" ? "bg-primary/10 h-full rounded-lg" : "cursor-pointer"}
                       >
                         Feedback
                       </TabsTrigger>
                       <TabsTrigger
                         value="settings"
-                        className={activeTab === "settings" ? "bg-primary/10 h-full rounded-lg" : ""}
+                        className={activeTab === "settings" ? "bg-primary/10 h-full rounded-lg" : "cursor-pointer"}
                       >
                         Settings
                       </TabsTrigger>
@@ -321,18 +322,29 @@ export default function ProfilePage() {
                       {userPrompts.map((prompt: any) => {
                         const avgRating = getAverageRating(prompt.feedbacks || []);
                         return (
-                          <Card key={prompt.id} className="bg-card border border-border">
+                          <Card
+                            key={prompt.id}
+                            className="bg-card border border-border"
+                          >
                             <CardContent className="p-4">
                               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                                 <div className="flex-1">
                                   <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 mb-2">
-                                    <h4 className="font-medium text-foreground truncate text-sm md:text-base lg:text-lg">{prompt.title}</h4>
+                                    <h4 className="font-medium text-foreground truncate text-sm md:text-base lg:text-lg">
+                                      {prompt.title}
+                                    </h4>
                                     <div className="flex flex-row flex-wrap gap-1 mt-1 sm:mt-0">
-                                      <Badge variant="secondary" className="px-2 py-0.5 text-xs md:text-sm">
+                                      <Badge
+                                        variant="secondary"
+                                        className="px-2 py-0.5 text-xs md:text-sm"
+                                      >
                                         {prompt.isPublic ? "Public" : "Private"}
                                       </Badge>
                                       {prompt.remixOf && (
-                                        <Badge variant="outline" className="px-2 py-0.5 text-xs md:text-sm flex items-center">
+                                        <Badge
+                                          variant="outline"
+                                          className="px-2 py-0.5 text-xs md:text-sm flex items-center"
+                                        >
                                           <GitBranch className="h-3 w-3 mr-1" />
                                           Remix
                                         </Badge>
@@ -340,11 +352,17 @@ export default function ProfilePage() {
                                     </div>
                                   </div>
                                   <div className="flex flex-wrap gap-1 mb-3">
-                                    {prompt.tags.slice(0, 4).map((tag: string) => (
-                                      <Badge key={tag} variant="outline" className="text-xs md:text-sm font-light px-2 py-0.5">
-                                        {tag}
-                                      </Badge>
-                                    ))}
+                                    {prompt.tags
+                                      .slice(0, 4)
+                                      .map((tag: string) => (
+                                        <Badge
+                                          key={tag}
+                                          variant="outline"
+                                          className="text-xs md:text-sm font-light px-2 py-0.5"
+                                        >
+                                          {tag}
+                                        </Badge>
+                                      ))}
                                   </div>
                                   <div className="flex justify-between md:justify-start md:gap-2 lg:gap-4 text-xs md:text-sm lg:text-base text-muted-foreground">
                                     {avgRating > 0 && (
@@ -367,13 +385,38 @@ export default function ProfilePage() {
                                   </div>
                                 </div>
                                 <div className="flex flex-row gap-2 mt-3 sm:mt-0">
-                                  <Button size="sm" variant="outline" className="text-xs md:text-sm">
-                                    <Edit3 className="h-4 w-4" />
-                                  </Button>
-                                  <Button size="sm" variant="outline" className="text-xs md:text-sm">
+                                  <Link
+                                    href={{
+                                      pathname: "/create",
+                                      query: {
+                                        edit: prompt.id,
+                                        title: prompt.title,
+                                        content: prompt.content,
+                                        tags: prompt.tags.join(","),
+                                        image: prompt.imageUrl || "",
+                                      },
+                                    }}
+                                  >
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="text-xs md:text-sm"
+                                    >
+                                      <Edit3 className="h-4 w-4" />
+                                    </Button>
+                                  </Link>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="text-xs md:text-sm"
+                                  >
                                     <Share2 className="h-4 w-4" />
                                   </Button>
-                                  <Button size="sm" variant="outline" className="text-xs md:text-sm">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="text-xs md:text-sm"
+                                  >
                                     <MoreHorizontal className="h-4 w-4" />
                                   </Button>
                                 </div>
@@ -428,15 +471,6 @@ export default function ProfilePage() {
                                     </div>
                                   </div>
                                   <p className="text-sm text-foreground">{feedback.comment}</p>
-                                  <div className="flex items-center space-x-2 mt-2">
-                                    <Button size="sm" variant="ghost" className="flex gap-0">
-                                      <ThumbsUp className="h-4 w-4 mr-1" />
-                                      Helpful
-                                    </Button>
-                                    <Button size="sm" variant="ghost">
-                                      Reply
-                                    </Button>
-                                  </div>
                                 </div>
                               </div>
                             </CardContent>
@@ -477,34 +511,6 @@ export default function ProfilePage() {
                           {user.googleId && (
                             <p className="text-xs text-muted-foreground mt-1">Email cannot be changed for Google accounts</p>
                           )}
-                        </div>
-                        <div>
-                          <Label htmlFor="bio">Bio</Label>
-                          <Textarea
-                            id="bio"
-                            value={profileData.bio}
-                            onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
-                            className="mt-1"
-                            rows={3}
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="location">Location</Label>
-                          <Input
-                            id="location"
-                            value={profileData.location}
-                            onChange={(e) => setProfileData({ ...profileData, location: e.target.value })}
-                            className="mt-1"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="website">Website</Label>
-                          <Input
-                            id="website"
-                            value={profileData.website}
-                            onChange={(e) => setProfileData({ ...profileData, website: e.target.value })}
-                            className="mt-1"
-                          />
                         </div>
                         <div className="flex space-x-3">
                           <Button onClick={handleSave} className="flex gap-0">

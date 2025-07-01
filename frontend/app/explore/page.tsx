@@ -1,15 +1,12 @@
 "use client";
-import React, { useState } from "react";
+
+import React, { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@apollo/client";
 import { PROMPTS_QUERY } from "@/lib/gql/explore";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/navigation";
+
 import {
   Search,
-  Heart,
-  Share2,
   Star,
   Filter,
   MessageCircle,
@@ -17,7 +14,26 @@ import {
   GitBranch,
 } from "lucide-react";
 
-// Types based on Prisma schema
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationPrevious,
+  PaginationNext,
+} from "@/components/ui/pagination";
+
+// ----------------- Types -----------------
 interface User {
   id: string;
   name: string | null;
@@ -45,36 +61,29 @@ interface Prompt {
   feedbacks: Feedback[];
 }
 
+// ----------------- Utils -----------------
 const getAverageRating = (feedbacks: Feedback[]): number => {
-  if (!feedbacks || feedbacks.length === 0) return 0;
+  if (!feedbacks?.length) return 0;
   const sum = feedbacks.reduce((acc, feedback) => acc + feedback.rating, 0);
   return sum / feedbacks.length;
 };
 
-const formatDate = (dateString: string): string => {
-  return new Date(dateString).toLocaleDateString();
-};
+const formatDate = (dateString: string): string =>
+  new Date(dateString).toLocaleDateString();
 
-const formatRelativeTime = (dateString: string): string => {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-  if (diffInHours < 1) return "Just now";
-  if (diffInHours < 24) return `${diffInHours}h ago`;
-  if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`;
-  return formatDate(dateString);
-};
-
+// ----------------- Page Component -----------------
 export default function ExplorePage() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState("popular");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+  const offset = (currentPage - 1) * itemsPerPage;
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
-  // Fetch all public prompts from backend
   const { data, loading, error } = useQuery<{ prompts: Prompt[] }>(PROMPTS_QUERY, {
     variables: {
       search: searchQuery || undefined,
-      tags: selectedTags.length > 0 ? selectedTags : undefined,
       isPublic: true,
     },
     fetchPolicy: "cache-and-network",
@@ -82,177 +91,216 @@ export default function ExplorePage() {
 
   const allPrompts = data?.prompts ?? [];
 
-  // Get all unique tags from prompts
-  const allTags = Array.from(new Set(allPrompts.flatMap((prompt) => prompt.tags))).sort();
+  // ----------------- Extract unique tags (limit to 30) -----------------
+  const uniqueTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    for (const prompt of allPrompts) {
+      for (const tag of prompt.tags) {
+        if (tagSet.size < 30) tagSet.add(tag);
+      }
+    }
+    return Array.from(tagSet);
+  }, [allPrompts]);
 
-  const sortOptions = [
-    { value: "popular", label: "Most Popular" },
-    { value: "recent", label: "Most Recent" },
-    { value: "rating", label: "Highest Rated" },
-    { value: "remixed", label: "Most Remixed" },
-  ];
-
-  let filteredPrompts = allPrompts.filter((prompt) => {
-    const matchesSearch =
-      prompt.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      prompt.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      prompt.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesTags =
-      selectedTags.length === 0 || selectedTags.some((tag) => prompt.tags.includes(tag));
-    return matchesSearch && matchesTags;
-  });
-
-  if (sortBy === "recent") {
-    filteredPrompts = [...filteredPrompts].sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-  } else if (sortBy === "rating") {
-    filteredPrompts = [...filteredPrompts].sort(
-      (a, b) => getAverageRating(b.feedbacks) - getAverageRating(a.feedbacks)
-    );
-  } else if (sortBy === "remixed") {
-    filteredPrompts = [...filteredPrompts].sort((a, b) => b.remixCount - a.remixCount);
-  } else {
-    // Default: "popular" (by feedback count)
-    filteredPrompts = [...filteredPrompts].sort(
-      (a, b) => (b.feedbacks?.length || 0) - (a.feedbacks?.length || 0)
-    );
-  }
-
+  // ----------------- Toggle tag filter -----------------
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) =>
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
     );
+    setCurrentPage(1);
   };
+
+  // ----------------- Filter and Sort -----------------
+  let filteredPrompts = allPrompts.filter((prompt) => {
+    const search = searchQuery.trim().toLowerCase();
+    const matchesSearch =
+      prompt.title.toLowerCase().includes(search) ||
+      prompt.content.toLowerCase().includes(search) ||
+      prompt.tags.some((tag) => tag.toLowerCase().includes(search));
+
+    const matchesTags =
+      selectedTags.length === 0 ||
+      selectedTags.some((tag) => prompt.tags.includes(tag));
+
+    return matchesSearch && matchesTags;
+  });
+
+  if (sortBy === "recent") {
+    filteredPrompts.sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  } else if (sortBy === "rating") {
+    filteredPrompts.sort(
+      (a, b) => getAverageRating(b.feedbacks) - getAverageRating(a.feedbacks)
+    );
+  } else if (sortBy === "remixed") {
+    filteredPrompts.sort((a, b) => b.remixCount - a.remixCount);
+  } else {
+    filteredPrompts.sort(
+      (a, b) => (b.feedbacks?.length || 0) - (a.feedbacks?.length || 0)
+    );
+  }
+
+  const totalPages = Math.ceil(filteredPrompts.length / itemsPerPage);
+  const paginatedPrompts = filteredPrompts.slice(offset, offset + itemsPerPage);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentPage]);
 
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
+        {/* Page Heading */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Explore Prompts</h1>
-          <p className="text-muted-foreground">Discover amazing prompts created by the community</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            Explore Prompts
+          </h1>
+          <p className="text-muted-foreground">
+            Discover amazing prompts created by the community
+          </p>
         </div>
 
-        {/* Search and Filters */}
-        <div className="mb-8 space-y-4">
+        {/* Search, Sort */}
+        <div className="mb-4 space-y-4">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search prompts, tags, or content..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="pl-10 bg-card text-foreground border-border"
               />
             </div>
-            <div className="flex gap-2">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="px-3 py-2 border border-border rounded-md text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              >
-                {sortOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <Button variant="outline" size="sm" className="border-border text-foreground">
-                <Filter className="h-4 w-4 mr-2" />
-                Filters
-              </Button>
-            </div>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="px-3 py-2 border border-border rounded-md text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="popular">Most Popular</option>
+              <option value="recent">Most Recent</option>
+              <option value="rating">Highest Rated</option>
+              <option value="remixed">Most Remixed</option>
+            </select>
           </div>
 
-          {/* Tag Filters */}
-          <div>
-            <div className="flex items-center space-x-2 mb-3">
-              <span className="text-sm font-medium text-foreground">Filter by tags:</span>
-              {selectedTags.length > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSelectedTags([])}
-                  className="text-xs text-muted-foreground hover:text-foreground"
-                >
-                  Clear all
-                </Button>
-              )}
+          {/* Tag Toggle Filters */}
+          <div className="flex items-center gap-4">
+            <div className="flex gap-2 items-center text-muted-foreground">
+              <Filter className="h-4 w-4" />
+            <span className="text-sm">Filter by Tags:</span>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {allTags.map((tag) => (
-                <Button
-                  key={tag}
-                  variant={selectedTags.includes(tag) ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => toggleTag(tag)}
-                  className={`text-xs ${selectedTags.includes(tag) ? "bg-primary text-primary-foreground" : "bg-background text-foreground border-border"}`}
-                >
-                  {tag}
-                </Button>
-              ))}
-            </div>
+            {selectedTags.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectedTags([])}
+                className="text-sm ml-2 text-muted-foreground hover:text-foreground"
+              >
+                Clear All
+              </Button>
+            )}
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {uniqueTags.map((tag) => (
+              <Badge
+                key={tag}
+                onClick={() => toggleTag(tag)}
+                className={`cursor-pointer border ${
+                  selectedTags.includes(tag)
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-background text-foreground border-border"
+                }`}
+              >
+                {tag}
+              </Badge>
+            ))}
           </div>
         </div>
 
-        {/* Prompts Grid */}
+        {/* Loading / Error */}
         {loading ? (
           <div className="text-center py-12">Loading prompts...</div>
         ) : error ? (
-          <div className="text-center py-12 text-red-500">Error loading prompts: {error.message}</div>
+          <div className="text-center py-12 text-red-500">
+            Error loading prompts: {error.message}
+          </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredPrompts.length === 0 && (
-              <div className="text-center py-12">
-                <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">No prompts found</h3>
-                <p className="text-muted-foreground">Try adjusting your search or filters</p>
-              </div>
-            )}
-            {filteredPrompts.map((prompt) => {
-              const avgRating = getAverageRating(prompt.feedbacks);
-              return (
-                <Card key={prompt.id} className="bg-card border border-border hover:shadow-lg transition-shadow cursor-pointer">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle className="text-lg line-clamp-2 text-foreground">{prompt.title}</CardTitle>
-                        <CardDescription className="mt-2 line-clamp-3 text-muted-foreground">
-                          {prompt.content.substring(0, 150)}...
-                        </CardDescription>
-                      </div>
-                      {prompt.remixOf && (
-                        <Badge variant="outline" className="ml-2 text-xs bg-background text-foreground border-border flex items-center">
-                          <GitBranch className="h-3 w-3 mr-1" />
-                          Remix
-                        </Badge>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {prompt.imageUrl && (
-                        <div className="w-full h-32 bg-muted rounded-lg flex items-center justify-center">
-                          <ImageIcon className="h-8 w-8 text-muted-foreground" />
+          <>
+            {/* Prompts Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {paginatedPrompts.map((prompt) => {
+                const avgRating = getAverageRating(prompt.feedbacks);
+                return (
+                  <Card
+                    key={prompt.id}
+                    onClick={() => router.push(`/prompt/${prompt.id}`)}
+                    className="bg-card border border-border hover:shadow-lg transition-shadow cursor-pointer h-full flex flex-col"
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) =>
+                      e.key === "Enter" && router.push(`/prompt/${prompt.id}`)
+                    }
+                  >
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="text-lg line-clamp-2 text-foreground">
+                            {prompt.title}
+                          </CardTitle>
+                          <CardDescription className="mt-2 line-clamp-3 text-muted-foreground">
+                            {prompt.content.substring(0, 150)}...
+                          </CardDescription>
                         </div>
-                      )}
-
-                      <div className="flex flex-wrap gap-1">
-                        {prompt.tags.slice(0, 4).map((tag) => (
-                          <Badge key={tag} variant="outline" className="text-xs bg-background text-foreground border-border">
-                            {tag}
-                          </Badge>
-                        ))}
-                        {prompt.tags.length > 4 && (
-                          <Badge variant="outline" className="text-xs bg-background text-foreground border-border">
-                            +{prompt.tags.length - 4}
+                        {prompt.remixOf && (
+                          <Badge
+                            variant="outline"
+                            className="ml-2 text-xs bg-background text-foreground border-border flex items-center"
+                          >
+                            <GitBranch className="h-3 w-3 mr-1" /> Remix
                           </Badge>
                         )}
                       </div>
-
-                      <div className="flex items-center justify-between text-xs md:text-sm text-muted-foreground">
-                        <div className="flex items-center space-x-4">
+                    </CardHeader>
+                    <CardContent className="flex flex-col flex-1 p-4 pt-0">
+                      <div className="flex-1 flex flex-col">
+                        {prompt.imageUrl ? (
+                          <img
+                            src={prompt.imageUrl}
+                            alt="Preview"
+                            className="w-full h-32 object-cover rounded-lg mb-2"
+                          />
+                        ) : (
+                          <div className="w-full h-32 bg-muted rounded-lg flex items-center justify-center mb-2">
+                            <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="flex flex-wrap gap-1 mb-4 mt-2">
+                          {prompt.tags.slice(0, 4).map((tag) => (
+                            <Badge
+                              key={tag}
+                              variant="outline"
+                              className="text-xs bg-background text-foreground border-border"
+                            >
+                              {tag}
+                            </Badge>
+                          ))}
+                          {prompt.tags.length > 4 && (
+                            <Badge
+                              variant="outline"
+                              className="text-xs bg-background text-foreground border-border"
+                            >
+                              +{prompt.tags.length - 4}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex items-center space-x-4 text-xs md:text-sm text-muted-foreground mb-2">
                           {avgRating > 0 && (
                             <span className="flex items-center">
                               <Star className="h-4 w-4 mr-1 fill-yellow-400 text-yellow-400" />
@@ -270,29 +318,62 @@ export default function ExplorePage() {
                             </span>
                           )}
                         </div>
-                        <span className="text-xs text-muted-foreground">by {prompt.author.name}</span>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">{formatDate(prompt.createdAt)}</span>
-                        <div className="flex space-x-2">
-                          <Button size="sm" variant="outline" className="border-border text-foreground">
-                            <Heart className="h-4 w-4" />
-                          </Button>
-                          <Button size="sm" variant="outline" className="border-border text-foreground">
-                            <GitBranch className="h-4 w-4" />
-                          </Button>
-                          <Button size="sm" variant="outline" className="border-border text-foreground">
-                            <Share2 className="h-4 w-4" />
-                          </Button>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-muted-foreground">
+                            {formatDate(prompt.createdAt)}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            by {prompt.author.name}
+                          </span>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <Pagination className="mt-10">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                      className={
+                        currentPage === 1
+                          ? "pointer-events-none opacity-50"
+                          : ""
+                      }
+                    />
+                  </PaginationItem>
+                  {[...Array(totalPages)].map((_, i) => (
+                    <PaginationItem key={i}>
+                      <PaginationLink
+                        isActive={currentPage === i + 1}
+                        onClick={() => setCurrentPage(i + 1)}
+                        href="#"
+                      >
+                        {i + 1}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() =>
+                        setCurrentPage((p) => Math.min(p + 1, totalPages))
+                      }
+                      className={
+                        currentPage === totalPages
+                          ? "pointer-events-none opacity-50"
+                          : ""
+                      }
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
+          </>
         )}
       </div>
     </div>

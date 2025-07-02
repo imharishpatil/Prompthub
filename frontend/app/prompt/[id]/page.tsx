@@ -14,7 +14,9 @@ import {
   MessageCircle,
   ImageIcon,
   Check,
+  Star,
 } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 interface User {
   id: string;
@@ -71,7 +73,9 @@ export default function PromptDetailsPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold mb-2">{prompt.title}</h1>
-      <p className="text-muted-foreground mb-4">Created by {prompt.author?.name}</p>
+      <p className="text-muted-foreground mb-4">
+        Created by {prompt.author?.name}
+      </p>
 
       <div className="flex flex-wrap gap-2 mb-6">
         {prompt.tags.map((tag) => (
@@ -106,36 +110,50 @@ export default function PromptDetailsPage() {
             className="mb-1 p-2 cursor-pointer transition-colors"
             onClick={() => handleCopy(prompt.content)}
           >
-            {copied ? <Check className="h-5 w-5 text-green-500" /> : <Copy className="h-5 w-5" />}
+            {copied ? (
+              <Check className="h-5 w-5 text-green-500" />
+            ) : (
+              <Copy className="h-5 w-5" />
+            )}
           </Button>
           <span className="text-xs">{copied ? "Copied" : "Copy"}</span>
         </div>
 
         <div className="flex flex-col items-center">
-  <Button
-  onClick={() =>
-    router.push(
-      `/create?remixOf=${prompt.id}&title=${encodeURIComponent(prompt.title)}&content=${encodeURIComponent(prompt.content)}&tags=${encodeURIComponent(prompt.tags.join(","))}&imageUrl=${encodeURIComponent(prompt.imageUrl || "")}`
-    )
-  }
-  variant="outline"
-  size="icon"
-  className="mb-1 p-2 cursor-pointer"
->
-  <GitBranch className="h-5 w-5" />
-</Button>
-  <span className="text-xs">Remix</span>
-</div>
+          <Button
+            onClick={() =>
+              router.push(
+                `/create?remixOf=${prompt.id}&title=${encodeURIComponent(
+                  prompt.title
+                )}&content=${encodeURIComponent(
+                  prompt.content
+                )}&tags=${encodeURIComponent(
+                  prompt.tags.join(",")
+                )}&imageUrl=${encodeURIComponent(prompt.imageUrl || "")}`
+              )
+            }
+            variant="outline"
+            size="icon"
+            className="mb-1 p-2 cursor-pointer"
+          >
+            <GitBranch className="h-5 w-5" />
+          </Button>
+          <span className="text-xs">Remix</span>
+        </div>
 
         <div className="flex flex-col items-center">
-          <Button variant="outline" size="icon" className="mb-1 p-2 cursor-pointer">
+          <Button
+            variant="outline"
+            size="icon"
+            className="mb-1 p-2 cursor-pointer"
+          >
             <Share2 className="h-5 w-5" />
           </Button>
           <span className="text-xs">Share</span>
         </div>
       </div>
 
-      <div className="flex items-center gap-6 mb-8">
+      <div className="flex items-center gap-6">
         <span className="flex items-center text-muted-foreground text-sm">
           <MessageCircle className="h-4 w-4 mr-1" />
           {prompt.feedbacks.length}
@@ -146,7 +164,10 @@ export default function PromptDetailsPage() {
         </span>
       </div>
 
-      <div className="text-xs text-muted-foreground mb-8">{formatDate(prompt.createdAt)}</div>
+      <div className="text-xs text-muted-foreground mb-8">
+        {formatDate(prompt.createdAt)}
+      </div>
+
 
       <h2 className="text-xl font-semibold mb-4">Comments</h2>
       <div className="space-y-6">
@@ -172,7 +193,23 @@ export default function PromptDetailsPage() {
             <div>
               <div className="font-semibold text-sm">{fb.user.name}</div>
               <div className="text-xs text-muted-foreground mb-1">
-                {Math.floor((Date.now() - new Date(fb.createdAt).getTime()) / (1000 * 60 * 60 * 24))} days ago
+                {Math.floor(
+                  (Date.now() - new Date(fb.createdAt).getTime()) /
+                    (1000 * 60 * 60 * 24)
+                )}{" "}
+                days ago
+              </div>
+              <div className="flex items-center">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`h-4 w-4 ${
+                      i < fb.rating
+                        ? "fill-yellow-400 text-yellow-400"
+                        : "text-muted-foreground"
+                    }`}
+                  />
+                ))}
               </div>
               <div className="text-base">{fb.comment}</div>
             </div>

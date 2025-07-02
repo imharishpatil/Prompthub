@@ -38,7 +38,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
       });
       if (data?.login?.token) {
         localStorage.setItem("token", data.login.token);
-        document.cookie = `token=${data.login.token}; path=/; max-age=604800`; // <-- Add this line
+        document.cookie = `token=${data.login.token}; path=/; max-age=604800`;
         if (data.login.user && typeof data.login.user === "object") {
           localStorage.setItem("user", JSON.stringify(data.login.user));
         }

@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,7 +21,6 @@ import {
   Save,
   Users,
   Award,
-  Globe,
   MessageCircle,
   GitBranch,
   ThumbsUp,
@@ -30,6 +28,7 @@ import {
   Settings as SettingsIcon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 // Helper functions
 const getAverageRating = (feedbacks: { rating: number }[]) =>
@@ -69,9 +68,6 @@ export default function ProfilePage() {
   const [profileData, setProfileData] = useState({
     name: user?.name || "",
     email: user?.email || "",
-    bio: "",
-    location: "",
-    website: "",
   });
 
   React.useEffect(() => {
@@ -126,9 +122,8 @@ export default function ProfilePage() {
                   <div>
                     <h1 className="text-2xl font-bold text-foreground">{profileData.name}</h1>
                     <p className="text-muted-foreground">{profileData.email}</p>
-                    <p className="text-muted-foreground mt-1">{profileData.bio}</p>
                   </div>
-                  <Button onClick={() => setIsEditing(!isEditing)} variant="outline" className="mt-4 sm:mt-0">
+                  <Button onClick={() => setIsEditing(!isEditing)} variant="outline" className="mt-4 sm:mt-0 cursor-pointer">
                     <Edit3 className="h-4 w-4 mr-2" />
                     {isEditing ? "Cancel" : "Edit Profile"}
                   </Button>
@@ -137,10 +132,6 @@ export default function ProfilePage() {
                   <span className="flex items-center">
                     <Calendar className="h-4 w-4 mr-1" />
                     Joined {formatDate(user.createdAt)}
-                  </span>
-                  <span className="flex items-center">
-                    <Globe className="h-4 w-4 mr-1" />
-                    {profileData.location}
                   </span>
                   {user.googleId && (
                     <span className="flex items-center">
@@ -178,7 +169,7 @@ export default function ProfilePage() {
                         value="prompts"
                         className={activeTab === "prompts" ? "bg-primary/10 h-full rounded-lg" : "cursor-pointer"}
                       >
-                        My Prompts
+                        Prompts
                       </TabsTrigger>
                       <TabsTrigger
                         value="feedback"
@@ -311,7 +302,7 @@ export default function ProfilePage() {
                       <h3 className="text-sm md:text-lg font-medium text-foreground">My Prompts ({userPrompts.length})</h3>
                       <Button
                         size="sm"
-                        className="flex gap-0 py-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                        className="flex gap-0 py-1 bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
                         onClick={() => router.push("/create")}
                       >
                         <Plus className="h-4 w-4 mr-2" />
@@ -400,7 +391,7 @@ export default function ProfilePage() {
                                     <Button
                                       size="sm"
                                       variant="outline"
-                                      className="text-xs md:text-sm"
+                                      className="text-xs md:text-sm cursor-pointer"
                                     >
                                       <Edit3 className="h-4 w-4" />
                                     </Button>
@@ -408,17 +399,30 @@ export default function ProfilePage() {
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    className="text-xs md:text-sm"
+                                    className="text-xs md:text-sm cursor-pointer"
                                   >
                                     <Share2 className="h-4 w-4" />
                                   </Button>
+
+                                  <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    className="text-xs md:text-sm"
+                                    className="text-xs md:text-sm cursor-pointer"
                                   >
                                     <MoreHorizontal className="h-4 w-4" />
                                   </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end" className="bg-background">
+                                    <DropdownMenuItem className="cursor-pointer border-b border-border hover:bg-background/10">
+                                      <span onClick={() => router.push(`/prompt/${prompt.id}`)}>View</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="cursor-pointer text-red-600 hover:bg-background/10">
+                                      <span>Delete</span>
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                  </DropdownMenu>
                                 </div>
                               </div>
                             </CardContent>
@@ -513,11 +517,11 @@ export default function ProfilePage() {
                           )}
                         </div>
                         <div className="flex space-x-3">
-                          <Button onClick={handleSave} className="flex gap-0">
+                          <Button onClick={handleSave} className="flex gap-0 cursor-pointer">
                             <Save className="h-4 w-4 mr-2" />
                             Save Changes
                           </Button>
-                          <Button variant="outline" onClick={() => setIsEditing(false)}>
+                          <Button variant="outline" onClick={() => setIsEditing(false)} className="cursor-pointer">
                             Cancel
                           </Button>
                         </div>
@@ -578,7 +582,7 @@ export default function ProfilePage() {
                         <div>
                           <h3 className="text-lg font-medium mb-4">Danger Zone</h3>
                           <div className="space-y-4">
-                            <Button variant="outline" className="text-red-600 border-red-300 hover:bg-red-50">
+                            <Button variant="outline" className="text-red-600 border-red-300 hover:bg-red-600 hover:text-white cursor-pointer">
                               Delete Account
                             </Button>
                             <p className="text-xs text-muted-foreground">

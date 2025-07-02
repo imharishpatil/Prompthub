@@ -73,18 +73,19 @@ export function Navbar() {
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
               {navigation.map((item) => (
-                <Link
+                <Button
+                  variant="ghost"
                   key={item.name}
-                  href={item.href}
+                  onClick={() => router.push(item.href)}
                   className={cn(
-                    "px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                    "px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer",
                     pathname === item.href
                       ? "bg-secondary text-primary"
                       : "text-muted-foreground hover:text-primary hover:bg-muted"
                   )}
                 >
                   {item.name}
-                </Link>
+                </Button>
               ))}
             </div>
           </div>
@@ -95,22 +96,21 @@ export function Navbar() {
 
             {!isLoggedIn ? (
               <div className="hidden sm:flex items-center space-x-2">
-                <Link href="/login">
-                  <Button
-                    className="bg-primary text-primary-foreground hover:bg-secondary hover:text-accent-foreground"
-                    variant="secondary"
-                  >
-                    Login
-                  </Button>
-                </Link>
-                <Link href="/register">
-                  <Button
-                    className="hover:bg-muted hover:text-muted-foreground bg-secondary"
-                    variant="outline"
-                  >
-                    Register
-                  </Button>
-                </Link>
+                <Button
+                  onClick={() => router.push("/login")}
+                  className="bg-primary text-primary-foreground hover:bg-secondary hover:text-accent-foreground cursor-pointer"
+                  variant="secondary"
+                >
+                  Login
+                </Button>
+
+                <Button
+                  onClick={() => router.push("/register")}
+                  className="hover:bg-muted hover:text-muted-foreground bg-secondary cursor-pointer"
+                  variant="outline"
+                >
+                  Register
+                </Button>
               </div>
             ) : (
               <div className="hidden md:flex items-center space-x-2">
@@ -127,7 +127,7 @@ export function Navbar() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-muted-foreground hover:text-red-400 hover:bg-transparent"
+                  className="text-muted-foreground hover:text-red-600 hover:bg-transparent cursor-pointer"
                   onClick={handleLogout}
                 >
                   <LogOut className="h-4 w-4" />
@@ -183,7 +183,12 @@ export function Navbar() {
                       {user?.name ? user.name[0] : "U"}
                     </AvatarFallback>
                   </Avatar>
-                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-red-400" onClick={handleLogout}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground hover:text-red-400"
+                    onClick={handleLogout}
+                  >
                     <LogOut />
                   </Button>
                 </div>

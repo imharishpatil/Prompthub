@@ -208,7 +208,7 @@ export default function CreatePage() {
               <div className="w-full h-40 bg-muted rounded-lg flex items-center justify-center border-2 border-dashed border-border">
                 <div className="text-center">
                   <Upload className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
-                  <Button variant="outline" onClick={handleImageUpload} disabled={isUploading}>
+                  <Button variant="outline" onClick={handleImageUpload} disabled={isUploading} className="cursor-pointer">
                     {isUploading ? "Uploading..." : "Upload Image"}
                   </Button>
                 </div>
@@ -217,7 +217,7 @@ export default function CreatePage() {
           </div>
 
           <div className="pt-6">
-            <Button onClick={handlePublish} className="bg-primary text-primary-foreground">
+            <Button onClick={handlePublish} className="bg-primary text-primary-foreground cursor-pointer">
               <Globe className="h-4 w-4 mr-2" />
               {promptData.isPublic ? "Publish Prompt" : "Save Private"}
             </Button>

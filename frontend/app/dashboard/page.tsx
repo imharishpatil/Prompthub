@@ -136,16 +136,24 @@ export default function Dashboard() {
         <div className="mb-8">
           <div className="flex items-center space-x-4">
             <Avatar className="h-16 w-16 bg-card border border-border">
-              <AvatarImage src={user.avatarUrl || "/placeholder.svg"} alt={user.name || "User"} />
+              <AvatarImage
+                src={user.avatarUrl || "/placeholder.svg"}
+                alt={user.name || "User"}
+              />
               <AvatarFallback className="text-lg bg-muted text-muted-foreground">
-                {user.name?.split(" ").map((n) => n[0]).join("") || "U"}
+                {user.name
+                  ?.split(" ")
+                  .map((n) => n[0])
+                  .join("") || "U"}
               </AvatarFallback>
             </Avatar>
             <div>
               <h1 className="text-3xl font-bold text-foreground">
                 Welcome back, {user.name?.split(" ")[0] || "User"}!
               </h1>
-              <p className="text-primary">Ready to create some amazing prompts today?</p>
+              <p className="text-primary">
+                Ready to create some amazing prompts today?
+              </p>
               <div className="flex items-center space-x-2 mt-2 text-sm text-muted-foreground">
                 <Calendar className="h-4 w-4" />
                 <span>Member since {formatDate(user.createdAt)}</span>
@@ -175,8 +183,12 @@ export default function Dashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                    <p className="text-3xl font-bold text-foreground">{stat.value}</p>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      {stat.title}
+                    </p>
+                    <p className="text-3xl font-bold text-foreground">
+                      {stat.value}
+                    </p>
                   </div>
                   <div className="p-3 rounded-full bg-secondary">
                     <stat.icon className="h-6 w-6 text-primary" />
@@ -196,20 +208,31 @@ export default function Dashboard() {
                   <Target className="h-5 w-5 mr-2 text-blue" />
                   Weekly Goal
                 </CardTitle>
-                <CardDescription className="text-muted-foreground">Create {weeklyGoal} prompts this week</CardDescription>
+                <CardDescription className="text-muted-foreground">
+                  Create {weeklyGoal} prompts this week
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-foreground">Progress</span>
+                    <span className="text-sm font-medium text-foreground">
+                      Progress
+                    </span>
                     <span className="text-sm text-foreground">
                       {currentProgress} of {weeklyGoal}
                     </span>
                   </div>
-                  <Progress value={progressPercentage} className="h-3 bg-muted" />
+                  <Progress
+                    value={progressPercentage}
+                    className="h-3 bg-muted"
+                  />
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-foreground">{weeklyGoal - currentProgress} prompts to go</span>
-                    <span className="font-medium text-primary">{Math.round(progressPercentage)}%</span>
+                    <span className="text-foreground">
+                      {weeklyGoal - currentProgress} prompts to go
+                    </span>
+                    <span className="font-medium text-primary">
+                      {Math.round(progressPercentage)}%
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -222,21 +245,24 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <Button
-                  className="w-full justify-start bg-muted text-muted-foreground hover:bg-secondary"
+                  onClick={() => router.push("/create")}
+                  className="w-full justify-start bg-muted text-muted-foreground hover:bg-secondary cursor-pointer"
                   variant="outline"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Create New Prompt
                 </Button>
                 <Button
-                  className="w-full justify-start bg-muted text-muted-foreground hover:bg-secondary"
+                  onClick={() => router.push("/explore")}
+                  className="w-full justify-start bg-muted text-muted-foreground hover:bg-secondary cursor-pointer"
                   variant="outline"
                 >
                   <Search className="h-4 w-4 mr-2" />
                   Explore Community
                 </Button>
                 <Button
-                  className="w-full justify-start bg-muted text-muted-foreground hover:bg-secondary"
+                  onClick={() => router.push("/profile")}
+                  className="w-full justify-start bg-muted text-muted-foreground hover:bg-secondary cursor-pointer"
                   variant="outline"
                 >
                   <Settings className="h-4 w-4 mr-2" />
@@ -252,25 +278,35 @@ export default function Dashboard() {
             <Card className="bg-card border border-border">
               <CardHeader>
                 <CardTitle>Your Recent Prompts</CardTitle>
-                <CardDescription className="text-muted-foreground">Your latest prompt creations</CardDescription>
+                <CardDescription className="text-muted-foreground">
+                  Your latest prompt creations
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {userPrompts.length === 0 && (
-                    <div className="text-muted-foreground text-center py-8">No prompts yet. Start creating!</div>
+                    <div className="text-muted-foreground text-center py-8">
+                      No prompts yet. Start creating!
+                    </div>
                   )}
                   {userPrompts.slice(0, 3).map((prompt) => {
                     const avgRating = getAverageRating(prompt.feedbacks || []);
                     return (
-                      <div
+                      <Card
                         key={prompt.id}
+                        onClick={() => router.push(`/prompt/${prompt.id}`)}
                         className="flex items-start space-x-4 p-4 border border-border rounded-lg hover:border-primary transition-colors cursor-pointer bg-background"
                       >
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-2">
-                            <h3 className="text-sm font-medium text-foreground truncate">{prompt.title}</h3>
+                            <h3 className="text-sm font-medium text-foreground truncate">
+                              {prompt.title}
+                            </h3>
                             <div className="flex items-center space-x-2">
-                              <Badge variant="secondary" className="text-muted-foreground font-light px-1 py-0.5">
+                              <Badge
+                                variant="secondary"
+                                className="text-muted-foreground font-light px-1 py-0.5"
+                              >
                                 {prompt.isPublic ? "Public" : "Private"}
                               </Badge>
                               {prompt.remixOf && (
@@ -284,7 +320,11 @@ export default function Dashboard() {
 
                           <div className="flex flex-wrap gap-1 mb-2">
                             {(prompt.tags || []).slice(0, 3).map((tag) => (
-                              <Badge key={tag} variant="outline" className="text-xs text-muted-foreground font-light px-1 py-0.5">
+                              <Badge
+                                key={tag}
+                                variant="outline"
+                                className="text-xs text-muted-foreground font-light px-1 py-0.5"
+                              >
                                 {tag}
                               </Badge>
                             ))}
@@ -299,12 +339,14 @@ export default function Dashboard() {
                             )}
                             <span className="flex items-center">
                               <MessageCircle className="h-3 w-3 mr-1" />
-                              {prompt.feedbacks?.length || 0} feedback{(prompt.feedbacks?.length || 0) !== 1 ? "s" : ""}
+                              {prompt.feedbacks?.length || 0} feedback
+                              {(prompt.feedbacks?.length || 0) !== 1 ? "s" : ""}
                             </span>
                             {prompt.remixCount > 0 && (
                               <span className="flex items-center">
                                 <GitBranch className="h-3 w-3 mr-1" />
-                                {prompt.remixCount} remix{prompt.remixCount !== 1 ? "es" : ""}
+                                {prompt.remixCount} remix
+                                {prompt.remixCount !== 1 ? "es" : ""}
                               </span>
                             )}
                             <span className="flex items-center">
@@ -313,14 +355,15 @@ export default function Dashboard() {
                             </span>
                           </div>
                         </div>
-                      </div>
-                    )
+                      </Card>
+                    );
                   })}
                 </div>
                 <div className="mt-4">
                   <Button
+                    onClick={() => router.push("/profile")}
                     variant="outline"
-                    className="w-full hover:bg-accent text-primary"
+                    className="w-full hover:bg-accent text-primary cursor-pointer"
                   >
                     View All Prompts
                   </Button>
@@ -332,23 +375,34 @@ export default function Dashboard() {
             <Card className="bg-card border border-border">
               <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>
-                <CardDescription className="text-muted-foreground">Your latest activity on PromptHub</CardDescription>
+                <CardDescription className="text-muted-foreground">
+                  Your latest activity on PromptHub
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {recentActivity.length === 0 && (
-                    <div className="text-muted-foreground text-center py-8">No recent activity yet.</div>
+                    <div className="text-muted-foreground text-center py-8">
+                      No recent activity yet.
+                    </div>
                   )}
                   {recentActivity.map((activity) => (
-                    <div key={activity.id} className="flex items-start space-x-3">
+                    <div
+                      key={activity.id}
+                      className="flex items-start space-x-3"
+                    >
                       <div className="flex-shrink-0">
                         <div className="p-2 bg-accent rounded-full">
                           <activity.icon className="h-4 w-4 text-accent-foreground" />
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-foreground">{activity.title}</p>
-                        <p className="text-xs text-muted-foreground">{activity.time}</p>
+                        <p className="text-sm text-foreground">
+                          {activity.title}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {activity.time}
+                        </p>
                       </div>
                     </div>
                   ))}

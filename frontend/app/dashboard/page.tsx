@@ -3,11 +3,13 @@ import React, { useEffect } from "react";
 import { useQuery } from "@apollo/client";
 import { useRouter } from "next/navigation";
 import { ME_WITH_PROMPTS_QUERY } from "@/lib/gql/dashboard";
+import CustomLayout from "@/components/layout/layout"
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
+import { Feedback, Prompt, User } from "@/lib/types";
 import {
   Search, Plus, Settings, TrendingUp, Share2, BookOpen, Target, Calendar, Star, MessageCircle, GitBranch,
 } from "lucide-react";
@@ -18,42 +20,7 @@ const getAverageRating = (feedbacks: { rating: number }[] = []) =>
 
 const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString();
 
-type Feedback = {
-  id: string;
-  comment: string;
-  rating: number;
-  createdAt: string;
-  user: {
-    id: string;
-    name?: string | null;
-    avatarUrl?: string | null;
-  };
-};
 
-type Prompt = {
-  id: string;
-  title: string;
-  content: string;
-  tags: string[];
-  isPublic: boolean;
-  remixOf?: string | null;
-  remixCount: number;
-  createdAt: string;
-  updatedAt: string;
-  imageUrl?: string | null;
-  feedbacks: Feedback[];
-};
-
-type User = {
-  id: string;
-  email: string;
-  name?: string | null;
-  avatarUrl?: string | null;
-  googleId?: string | null;
-  createdAt: string;
-  updatedAt: string;
-  prompts: Prompt[];
-};
 
 export default function Dashboard() {
   const router = useRouter();
@@ -130,6 +97,7 @@ export default function Dashboard() {
   }
 
   return (
+    <CustomLayout>
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Header */}
@@ -413,5 +381,6 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
+    </CustomLayout>
   );
 }

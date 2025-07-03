@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useMutation } from "@apollo/client";
 import { CREATE_PROMPT_MUTATION } from "@/lib/gql/create";
+import CustomLayout from "@/components/layout/layout"
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +12,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import {
   X,
@@ -135,6 +135,7 @@ export default function CreatePage() {
   };
 
   return (
+    <CustomLayout>
     <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="mb-6">
@@ -267,5 +268,6 @@ export default function CreatePage() {
         </Tabs>
       </div>
     </div>
+    </CustomLayout>
   );
 }

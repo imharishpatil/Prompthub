@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@apollo/client";
 import { PROMPTS_QUERY } from "@/lib/gql/explore";
 import { useRouter } from "next/navigation";
-
+import CustomLayout from "@/components/layout/layout"
 import {
   Search,
   Star,
@@ -13,7 +13,7 @@ import {
   ImageIcon,
   GitBranch,
 } from "lucide-react";
-
+import { Prompt, Feedback} from "@/lib/types";
 import {
   Card,
   CardContent,
@@ -32,34 +32,6 @@ import {
   PaginationPrevious,
   PaginationNext,
 } from "@/components/ui/pagination";
-
-// ----------------- Types -----------------
-interface User {
-  id: string;
-  name: string | null;
-  avatarUrl: string | null;
-}
-interface Feedback {
-  id: string;
-  user: User;
-  comment: string;
-  rating: number;
-  createdAt: string;
-}
-interface Prompt {
-  id: string;
-  title: string;
-  content: string;
-  tags: string[];
-  isPublic: boolean;
-  author: User;
-  remixOf: string | null;
-  remixCount: number;
-  createdAt: string;
-  updatedAt: string;
-  imageUrl: string | null;
-  feedbacks: Feedback[];
-}
 
 // ----------------- Utils -----------------
 const getAverageRating = (feedbacks: Feedback[]): number => {
@@ -149,6 +121,7 @@ export default function ExplorePage() {
   }, [currentPage]);
 
   return (
+    <CustomLayout>
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Heading */}
@@ -377,5 +350,6 @@ export default function ExplorePage() {
         )}
       </div>
     </div>
+    </CustomLayout>
   );
 }

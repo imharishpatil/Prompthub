@@ -5,13 +5,14 @@ import { useQuery } from "@apollo/client";
 import { ME_WITH_PROMPTS_AND_FEEDBACK_QUERY } from "@/lib/gql/profile";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import CustomLayout from "@/components/layout/layout"
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner"
 import {
   Plus,
   Share2,
@@ -86,8 +87,7 @@ export default function ProfilePage() {
 
   const handleSave = () => {
     setIsEditing(false);
-    toast({
-      title: "Profile updated!",
+    toast("Profile updated!",{
       description: "Your profile has been updated successfully.",
     });
     // TODO: Send mutation to backend to update profile
@@ -105,6 +105,7 @@ export default function ProfilePage() {
   }
 
   return (
+    <CustomLayout>
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Profile Header */}
@@ -672,5 +673,6 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+    </CustomLayout>
   );
 }

@@ -1,7 +1,6 @@
 import type React from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { Navbar } from "@/components/layout/Navbar";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
 import { ApolloWrapper } from "./ApolloWrapper";
@@ -24,7 +23,6 @@ export default function RootLayout({
       <body className={inter.className}>
         <ApolloWrapper>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <Navbar />
             {children}
             <Toaster />
         </ThemeProvider>

@@ -7,6 +7,8 @@ import { PROMPT_DETAILS_QUERY } from "@/lib/gql/promptDetails";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import CustomLayout from "@/components/layout/layout";
+import { Prompt } from "@/lib/types";
 import {
   Copy,
   GitBranch,
@@ -16,31 +18,6 @@ import {
   Check,
   Star,
 } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-
-interface User {
-  id: string;
-  name: string | null;
-  avatarUrl: string | null;
-}
-interface Feedback {
-  id: string;
-  user: User;
-  comment: string;
-  rating: number;
-  createdAt: string;
-}
-interface Prompt {
-  id: string;
-  title: string;
-  content: string;
-  tags: string[];
-  author: User;
-  createdAt: string;
-  remixCount: number;
-  feedbacks: Feedback[];
-  imageUrl?: string | null;
-}
 
 const formatDate = (dateString: string): string => {
   return new Date(dateString).toLocaleDateString();
@@ -71,11 +48,15 @@ export default function PromptDetailsPage() {
   const prompt = data.prompt;
 
   return (
+    <CustomLayout>
     <div className="max-w-3xl mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold mb-2">{prompt.title}</h1>
-      <p className="text-muted-foreground mb-4">
+      <p className="text-muted-foreground mb-1">
         Created by {prompt.author?.name}
       </p>
+      <div className="text-xs text-muted-foreground mb-4">
+        On {formatDate(prompt.createdAt)}
+      </div>
 
       <div className="flex flex-wrap gap-2 mb-6">
         {prompt.tags.map((tag) => (
@@ -153,7 +134,7 @@ export default function PromptDetailsPage() {
         </div>
       </div>
 
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-6  mb-8">
         <span className="flex items-center text-muted-foreground text-sm">
           <MessageCircle className="h-4 w-4 mr-1" />
           {prompt.feedbacks.length}
@@ -162,10 +143,6 @@ export default function PromptDetailsPage() {
           <GitBranch className="h-4 w-4 mr-1" />
           {prompt.remixCount}
         </span>
-      </div>
-
-      <div className="text-xs text-muted-foreground mb-8">
-        {formatDate(prompt.createdAt)}
       </div>
 
 
@@ -217,5 +194,6 @@ export default function PromptDetailsPage() {
         ))}
       </div>
     </div>
+    </CustomLayout>
   );
 }

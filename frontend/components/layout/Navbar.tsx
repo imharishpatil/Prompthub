@@ -8,6 +8,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { cn } from "@/lib/utils"
+import { deleteCookies } from "@/hooks/logout"
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
@@ -34,12 +35,13 @@ export function Navbar() {
     }
   }, [])
 
-  const handleLogout = () => {
+  function handleLogout(){
+    router.push("/login")
+    setIsLoggedIn(false)
+    deleteCookies("token")
     localStorage.removeItem("token")
     localStorage.removeItem("user")
-    setIsLoggedIn(false)
     setUser(null)
-    router.push("/login")
   }
 
   const navigation = isLoggedIn
@@ -123,15 +125,15 @@ export function Navbar() {
                   <AvatarFallback>
                     {user?.name ? user.name[0] : "U"}
                   </AvatarFallback>
-                </Avatar>
+                </Avatar>    
                 <Button
                   variant="ghost"
                   size="sm"
                   className="text-muted-foreground hover:text-red-600 hover:bg-transparent cursor-pointer"
-                  onClick={handleLogout}
                 >
                   <LogOut className="h-4 w-4" />
                 </Button>
+           
               </div>
             )}
 
@@ -183,14 +185,13 @@ export function Navbar() {
                       {user?.name ? user.name[0] : "U"}
                     </AvatarFallback>
                   </Avatar>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-muted-foreground hover:text-red-400"
-                    onClick={handleLogout}
-                  >
-                    <LogOut />
-                  </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:text-red-600 hover:bg-transparent cursor-pointer"
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
                 </div>
               ) : (
                 <div className="space-y-2 flex">

@@ -10,6 +10,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2Icon } from "lucide-react"
+import { useRouter } from "next/navigation";
+
+const router = useRouter();
 
 // Validation utilities
 const validateEmail = (email: string): boolean => {
@@ -100,8 +103,7 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
         toast("Registration successful!", {
           description: "Welcome to PromptHub. You can now start creating and sharing prompts.",
         });
-        // Optionally redirect, e.g.:
-        // window.location.href = "/pro";
+         router.push("/dashboard");
       }
     } catch (err: any) {
       toast("Registration failed", {

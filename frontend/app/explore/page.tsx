@@ -5,6 +5,7 @@ import { useQuery } from "@apollo/client";
 import { PROMPTS_QUERY } from "@/lib/gql/explore";
 import { useRouter } from "next/navigation";
 import CustomLayout from "@/components/layout/layout"
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Search,
   Star,
@@ -197,7 +198,69 @@ export default function ExplorePage() {
 
         {/* Loading / Error */}
         {loading ? (
-          <div className="text-center py-12">Loading prompts...</div>
+          <>
+          <div className="flex items-center space-x-4 mb-8">
+                <Skeleton className="h-5 w-20 rounded-full"/>
+                <Skeleton className="h-5 w-16 rounded-full"/>
+                <Skeleton className="h-5 w-20 rounded-full"/>
+                <Skeleton className="h-5 w-16 rounded-full"/>
+                <Skeleton className="h-5 w-16 rounded-full"/>
+                <Skeleton className="h-5 w-24 rounded-full"/>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="h-full flex flex-col">
+                    <Skeleton className="h-4 w-full my-4"/>
+                    <Skeleton className="h-2 w-full mb-1"/>
+                    <Skeleton className="h-2 w-[50%] mb-4"/>
+                    <Skeleton className="w-full h-32 rounded-lg flex items-center justify-center mb-2">
+                        <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                    </Skeleton>
+                    <div className="flex flex-wrap gap-1 mb-6 mt-2">
+                    <Skeleton className="h-5 w-20 rounded-full"/>
+                    <Skeleton className="h-5 w-16 rounded-full"/>
+                    <Skeleton className="h-5 w-20 rounded-full"/>
+                    </div>
+                    <div className="flex items-center justify-between space-x-4 mb-2">
+                        <Skeleton className="h-2 w-16"/>
+                        <Skeleton className="h-2 w-16"/>
+                    </div>
+                </div>
+                <div className="h-full flex flex-col">
+                    <Skeleton className="h-4 w-full my-4"/>
+                    <Skeleton className="h-2 w-full mb-1"/>
+                    <Skeleton className="h-2 w-[50%] mb-4"/>
+                    <Skeleton className="w-full h-32 rounded-lg flex items-center justify-center mb-2">
+                        <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                    </Skeleton>
+                    <div className="flex flex-wrap gap-1 mb-6 mt-2">
+                    <Skeleton className="h-5 w-20 rounded-full"/>
+                    <Skeleton className="h-5 w-16 rounded-full"/>
+                    <Skeleton className="h-5 w-20 rounded-full"/>
+                    </div>
+                    <div className="flex items-center justify-between space-x-4 mb-2">
+                        <Skeleton className="h-2 w-16"/>
+                        <Skeleton className="h-2 w-16"/>
+                    </div>
+                </div>
+                <div className="h-full flex flex-col">
+                    <Skeleton className="h-4 w-full my-4"/>
+                    <Skeleton className="h-2 w-full mb-1"/>
+                    <Skeleton className="h-2 w-[50%] mb-4"/>
+                    <Skeleton className="w-full h-32 rounded-lg flex items-center justify-center mb-2">
+                        <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                    </Skeleton>
+                    <div className="flex flex-wrap gap-1 mb-6 mt-2">
+                    <Skeleton className="h-5 w-20 rounded-full"/>
+                    <Skeleton className="h-5 w-16 rounded-full"/>
+                    <Skeleton className="h-5 w-20 rounded-full"/>
+                    </div>
+                    <div className="flex items-center justify-between space-x-4 mb-2">
+                        <Skeleton className="h-2 w-16"/>
+                        <Skeleton className="h-2 w-16"/>
+                    </div>
+                </div>
+             </div>
+            </>
         ) : error ? (
           <div className="text-center py-12 text-red-500">
             Error loading prompts: {error.message}

@@ -63,7 +63,11 @@ export const typeDefs = gql`
     signup(email: String!, password: String!, name: String): AuthPayload!
     login(email: String!, password: String!): AuthPayload!
     googleAuth(token: String!): AuthPayload!
-
+    updateUserProfile(
+      id: ID!
+      email: String!
+      avatarUrl: string
+    ): User!
     createPrompt(
       title: String!
       content: String!

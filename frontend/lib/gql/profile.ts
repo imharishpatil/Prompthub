@@ -36,3 +36,15 @@ export const ME_WITH_PROMPTS_AND_FEEDBACK_QUERY = gql`
     }
   }
 `;
+
+export const UPDATE_USER_PROFILE_MUTATION = gql`
+  mutation UpdateUserProfile($name: String, $email: String, $avatarUrl: String) {
+    updateUserProfile(name: $name, email: $email, avatarUrl: $avatarUrl) {
+      id
+      name
+      email
+      avatarUrl
+      updatedAt
+    }
+  }
+`;

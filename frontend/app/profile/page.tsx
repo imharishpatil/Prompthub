@@ -2,7 +2,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@apollo/client";
-import { ME_WITH_PROMPTS_AND_FEEDBACK_QUERY } from "@/lib/gql/profile";
+import { ME_WITH_PROMPTS_AND_FEEDBACK_QUERY, UPDATE_USER_PROFILE_MUTATION  } from "@/lib/gql/profile";
+import { useMutation } from "@apollo/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import CustomLayout from "@/components/layout/layout"
@@ -24,7 +25,6 @@ import {
   Award,
   MessageCircle,
   GitBranch,
-  ThumbsUp,
   MoreHorizontal,
   Settings as SettingsIcon,
 } from "lucide-react";
@@ -54,6 +54,7 @@ export default function ProfilePage() {
 
   // Fetch user and prompts from backend
   const { data, loading, error } = useQuery(ME_WITH_PROMPTS_AND_FEEDBACK_QUERY);
+  const [updateUserProfile] = useMutation(UPDATE_USER_PROFILE_MUTATION);
 
   // Always define state, even if data is not ready yet!
   const user = data?.me;
@@ -85,12 +86,21 @@ export default function ProfilePage() {
     if (isEditing) setActiveTab("settings");
   }, [isEditing]);
 
-  const handleSave = () => {
+  async function  handleSave() {
+    // Send mutation to backend to update profile
+  const {data} = await updateUserProfile({
+    variables: {
+      name: profileData.name,
+      email: profileData.email,
+      // avatarUrl: profileData.url || "",
+    },
+  });
+  if(data){
     setIsEditing(false);
     toast("Profile updated!",{
-      description: "Your profile has been updated successfully.",
+      description: `Your profile has been updated successfully. with ${data}`,
     });
-    // TODO: Send mutation to backend to update profile
+  }
   };
 
   if (loading) {

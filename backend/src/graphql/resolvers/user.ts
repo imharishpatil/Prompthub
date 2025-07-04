@@ -18,8 +18,30 @@ const Query = {
 };
 
 const Mutation = {
-  // Signup/login/Google Auth handled in auth resolvers (to be implemented)
+  updateUserProfile: async (
+    _parent: any,
+    args: { name?: string; email?: string; avatarUrl?: string },
+    context: Context
+  ) => {
+    if (!context.user) {
+      throw new Error("Not authenticated");
+    }
+
+    const { name, email, avatarUrl } = args;
+
+    const updatedUser = await context.prisma.user.update({
+      where: { id: context.user.id },
+      data: {
+        ...(name && { name }),
+        ...(email && { email }),
+        ...(avatarUrl && { avatarUrl }),
+      },
+    });
+
+    return updatedUser;
+  },
 };
+
 
 const User = {
   prompts: async (parent: any, _args: any, context: Context) => {

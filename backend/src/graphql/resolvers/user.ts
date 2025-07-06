@@ -19,26 +19,56 @@ const Query = {
 
 const Mutation = {
   updateUserProfile: async (
-    _parent: any,
+    _parent: unknown,
     args: { name?: string; email?: string; avatarUrl?: string },
     context: Context
   ) => {
-    if (!context.user) {
-      throw new Error("Not authenticated");
-    }
+    if (!context.user) throw new Error("Not authenticated");
 
-    const { name, email, avatarUrl } = args;
-
-    const updatedUser = await context.prisma.user.update({
+    return context.prisma.user.update({
       where: { id: context.user.id },
       data: {
-        ...(name && { name }),
-        ...(email && { email }),
-        ...(avatarUrl && { avatarUrl }),
+        ...(args.name && { name: args.name }),
+        ...(args.email && { email: args.email }),
+        ...(args.avatarUrl && { avatarUrl: args.avatarUrl }),
       },
     });
+  },
 
-    return updatedUser;
+  deleteAccount: async (_parent: unknown, _args: {}, context: Context) => {
+    if (!context.user) throw new Error("Not authenticated");
+
+    const userId = context.user.id;
+
+    // Step 1: Delete feedbacks on other prompts by this user
+    await context.prisma.feedback.deleteMany({
+      where: { userId },
+    });
+
+    // Step 2: Delete prompts and cascade their feedbacks
+    const userPrompts = await context.prisma.prompt.findMany({
+      where: { authorId: userId },
+      select: { id: true },
+    });
+
+    const promptIds = userPrompts.map((p) => p.id);
+
+    // Delete feedbacks on the user's prompts
+    await context.prisma.feedback.deleteMany({
+      where: { promptId: { in: promptIds } },
+    });
+
+    // Delete the prompts
+    await context.prisma.prompt.deleteMany({
+      where: { authorId: userId },
+    });
+
+    // Step 3: Delete the user
+    await context.prisma.user.delete({
+      where: { id: userId },
+    });
+
+    return true;
   },
 };
 

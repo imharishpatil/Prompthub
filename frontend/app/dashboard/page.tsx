@@ -3,7 +3,6 @@ import React, { useEffect } from "react";
 import { useQuery } from "@apollo/client";
 import { useRouter } from "next/navigation";
 import { ME_WITH_PROMPTS_QUERY } from "@/lib/gql/dashboard";
-import CustomLayout from "@/components/layout/layout"
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -97,7 +96,6 @@ export default function Dashboard() {
   }
 
   return (
-    <CustomLayout>
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Header */}
@@ -381,6 +379,5 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
-    </CustomLayout>
   );
 }

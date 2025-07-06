@@ -51,7 +51,7 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
     name: "",
     email: "",
     password: "",
-    confirmPassword: "",
+    avatarUrl: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const passwordValidation = validatePassword(formData.password);
@@ -89,12 +89,16 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
     e.preventDefault();
     if (!validateForm()) return;
 
+    const randomAvatar = avatarOptions[Math.floor(Math.random() * avatarOptions.length)];
+    setFormData((prev) => ({ ...prev, avatarUrl: randomAvatar }));
+
     try {
       const { data } = await signup({
         variables: {
           email: formData.email,
           password: formData.password,
           name: formData.name,
+          avatarUrl: randomAvatar,
         },
       });
 
@@ -123,6 +127,12 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
     if (strength < 70) return "Medium";
     return "Strong";
   };
+
+  //avatar options
+  const avatarOptions = Array.from({ length: 10 }, (_, i) =>
+  `/avatars/avatar${i + 1}.svg`
+);
+
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>

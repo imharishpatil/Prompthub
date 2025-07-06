@@ -21,7 +21,7 @@ function generateToken(user: any) {
 const Mutation = {
   signup: async (
     _parent: any,
-    args: { email: string; password: string; name?: string },
+    args: { email: string; password: string; name?: string; avatarUrl?: string },
     context: Context
   ) => {
     const existing = await context.prisma.user.findUnique({ where: { email: args.email } });
@@ -32,6 +32,8 @@ const Mutation = {
         email: args.email,
         password: hashedPassword,
         name: args.name ?? "",
+        avatarUrl: args.avatarUrl ?? "",
+        googleId: null, // Ensure googleId is null for non-Google signups
       },
     });
     const token = generateToken(user);

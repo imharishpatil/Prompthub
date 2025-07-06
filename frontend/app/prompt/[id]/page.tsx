@@ -7,7 +7,6 @@ import { PROMPT_DETAILS_QUERY } from "@/lib/gql/promptDetails";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import CustomLayout from "@/components/layout/layout";
 import { Prompt } from "@/lib/types";
 import {
   Copy,
@@ -48,7 +47,7 @@ export default function PromptDetailsPage() {
   const prompt = data.prompt;
 
   return (
-    <CustomLayout>
+  
     <div className="max-w-3xl mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold mb-2">{prompt.title}</h1>
       <p className="text-muted-foreground mb-1">
@@ -194,6 +193,6 @@ export default function PromptDetailsPage() {
         ))}
       </div>
     </div>
-    </CustomLayout>
+  
   );
 }

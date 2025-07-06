@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { cn } from "@/lib/utils"
 import { deleteCookies } from "@/hooks/logout"
+import { Logout } from "../auth/logout"
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
@@ -126,13 +127,7 @@ export function Navbar() {
                     {user?.name ? user.name[0] : "U"}
                   </AvatarFallback>
                 </Avatar>    
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-muted-foreground hover:text-red-600 hover:bg-transparent cursor-pointer"
-                >
-                  <LogOut className="h-4 w-4" />
-                </Button>
+                <Logout onClick={handleLogout} />
            
               </div>
             )}
@@ -185,13 +180,7 @@ export function Navbar() {
                       {user?.name ? user.name[0] : "U"}
                     </AvatarFallback>
                   </Avatar>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-muted-foreground hover:text-red-600 hover:bg-transparent cursor-pointer"
-                >
-                  <LogOut className="h-4 w-4" />
-                </Button>
+                <Logout onClick={handleLogout} />
                 </div>
               ) : (
                 <div className="space-y-2 flex">

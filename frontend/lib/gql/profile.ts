@@ -38,7 +38,7 @@ export const ME_WITH_PROMPTS_AND_FEEDBACK_QUERY = gql`
 `;
 
 export const UPDATE_USER_PROFILE_MUTATION = gql`
-  mutation UpdateUserProfile($name: String, $email: String, $avatarUrl: String) {
+  mutation UpdateUserProfile($name: String!, $email: String!, $avatarUrl: String) {
     updateUserProfile(name: $name, email: $email, avatarUrl: $avatarUrl) {
       id
       name
@@ -46,5 +46,17 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
       avatarUrl
       updatedAt
     }
+  }
+`;
+
+export const DELETE_PROMPT_MUTATION = gql`
+  mutation DeletePrompt($id: ID!) {
+    deletePrompt(id: $id)
+  }
+`;
+
+export const DELETE_ACCOUNT_MUTATION = gql`
+  mutation DeleteAccount {
+    deleteAccount
   }
 `;

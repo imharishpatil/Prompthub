@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
 import { ApolloWrapper } from "./ApolloWrapper";
 import "./globals.css";
+import CustomLayout from "@/components/layout/layout";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,10 +24,13 @@ export default function RootLayout({
       <body className={inter.className}>
         <ApolloWrapper>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <CustomLayout>
             {children}
+            </CustomLayout>
             <Toaster />
         </ThemeProvider>
         </ApolloWrapper>    
+        
       </body>
     </html>
   );

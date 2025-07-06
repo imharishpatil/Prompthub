@@ -60,33 +60,32 @@ export const typeDefs = gql`
   }
 
   type Mutation {
-    signup(email: String!, password: String!, name: String): AuthPayload!
-    login(email: String!, password: String!): AuthPayload!
-    googleAuth(token: String!): AuthPayload!
-    updateUserProfile(
-      id: ID!
-      email: String!
-      avatarUrl: string
-    ): User!
-    createPrompt(
-      title: String!
-      content: String!
-      tags: [String!]
-      isPublic: Boolean
-      remixOf: String
-      imageUrl: String
-    ): Prompt!
-    updatePrompt(
-      id: ID!
-      title: String
-      content: String
-      tags: [String!]
-      isPublic: Boolean
-      imageUrl: String
-    ): Prompt!
-    deletePrompt(id: ID!): Boolean!
+  signup(email: String!, password: String!, name: String, avatarUrl: String): AuthPayload!
+  login(email: String!, password: String!): AuthPayload!
+  googleAuth(token: String!): AuthPayload!
 
-    createFeedback(promptId: ID!, comment: String!, rating: Int!): Feedback!
-    deleteFeedback(id: ID!): Boolean!
-  }
+  updateUserProfile(name: String!, email: String!, avatarUrl: String): User!
+  deleteAccount: Boolean!
+
+  createPrompt(
+    title: String!
+    content: String!
+    tags: [String!]
+    isPublic: Boolean
+    remixOf: String
+    imageUrl: String
+  ): Prompt!
+  updatePrompt(
+    id: ID!
+    title: String
+    content: String
+    tags: [String!]
+    isPublic: Boolean
+    imageUrl: String
+  ): Prompt!
+  deletePrompt(id: ID!): Boolean!
+
+  createFeedback(promptId: ID!, comment: String!, rating: Int!): Feedback!
+  deleteFeedback(id: ID!): Boolean!
+}
 `;

@@ -35,3 +35,40 @@ export const CREATE_PROMPT_MUTATION = gql`
     }
   }
 `;
+
+export const UPDATE_PROMPT_MUTATION = gql`
+  mutation UpdatePrompt(
+    $id: ID!
+    $title: String
+    $content: String
+    $tags: [String!]
+    $isPublic: Boolean
+    $imageUrl: String
+  ) {
+    updatePrompt(
+      id: $id
+      title: $title
+      content: $content
+      tags: $tags
+      isPublic: $isPublic
+      imageUrl: $imageUrl
+    ) {
+      id
+      title
+      content
+      tags
+      isPublic
+      remixOf
+      remixCount
+      createdAt
+      updatedAt
+      imageUrl
+      author {
+        id
+        name
+        avatarUrl
+      }
+    }
+  }
+`;
+

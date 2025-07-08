@@ -29,8 +29,8 @@ export const LOGIN_MUTATION = gql`
 `;
 
 export const GOOGLE_AUTH_MUTATION = gql`
-  mutation GoogleAuth($token: String!) {
-    googleAuth(token: $token) {
+  mutation GoogleAuth($token: String!, $avatarUrl: String) {
+    googleAuth(token: $token, avatarUrl: $avatarUrl) {
       token
       user {
         id

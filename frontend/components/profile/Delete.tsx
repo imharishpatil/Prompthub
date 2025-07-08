@@ -17,14 +17,13 @@ export function DeleteAccount({onClick}: {onClick: () => void}) {
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button
-          onClick={onClick}
           variant="outline"
           className="text-red-600 border-red-300 hover:bg-red-600 hover:text-white cursor-pointer"
         >
           Delete Account
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent>
+      <AlertDialogContent className="sm:max-w-[425px] md:max-w-lg fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-card">
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
@@ -34,7 +33,7 @@ export function DeleteAccount({onClick}: {onClick: () => void}) {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Continue</AlertDialogAction>
+          <AlertDialogAction onClick={onClick}>Continue</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

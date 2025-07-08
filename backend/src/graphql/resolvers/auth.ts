@@ -52,33 +52,41 @@ const Mutation = {
     return { token, user };
   },
   googleAuth: async (
-    _parent: any,
-    args: { token: string },
-    context: Context
-  ) => {
-    if (!GOOGLE_CLIENT_ID) throw new Error('Google client not configured');
-    const client = new OAuth2Client(GOOGLE_CLIENT_ID);
-    const ticket = await client.verifyIdToken({
-      idToken: args.token,
-      audience: GOOGLE_CLIENT_ID,
+  _parent: any,
+  args: { token: string; avatarUrl?: string }, 
+  context: Context
+) => {
+  if (!GOOGLE_CLIENT_ID) throw new Error("Google client not configured");
+
+  const client = new OAuth2Client(GOOGLE_CLIENT_ID);
+  const ticket = await client.verifyIdToken({
+    idToken: args.token,
+    audience: GOOGLE_CLIENT_ID,
+  });
+
+  const payload = ticket.getPayload();
+  if (!payload || !payload.email) throw new Error("Google token invalid");
+
+  // Check if user exists
+  let user = await context.prisma.user.findUnique({
+    where: { email: payload.email },
+  });
+
+  // Create if not exists
+  if (!user) {
+    user = await context.prisma.user.create({
+      data: {
+        email: payload.email,
+        name: payload.name ?? "",
+        avatarUrl: args.avatarUrl || null,
+        googleId: payload.sub,
+      },
     });
-    const payload = ticket.getPayload();
-    if (!payload || !payload.email) throw new Error('Google token invalid');
-    // Find or create user
-    let user = await context.prisma.user.findUnique({ where: { email: payload.email } });
-    if (!user) {
-      user = await context.prisma.user.create({
-        data: {
-          email: payload.email,
-          name: payload.name ?? "",
-          avatarUrl: payload.picture,
-          googleId: payload.sub,
-        }
-      });
-    }
-    const jwtToken = generateToken(user);
-    return { token: jwtToken, user };
   }
+
+  const jwtToken = generateToken(user);
+  return { token: jwtToken, user };
+}
 };
 
 export default {

@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ApolloWrapper } from "./ApolloWrapper";
 import "./globals.css";
 import CustomLayout from "@/components/layout/layout";
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,10 +25,12 @@ export default function RootLayout({
       <body className={inter.className}>
         <ApolloWrapper>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <GoogleOAuthProvider clientId={process.env.GOOGLE_CLIENT_ID || ""}>
           <CustomLayout>
             {children}
             </CustomLayout>
             <Toaster />
+            </GoogleOAuthProvider>
         </ThemeProvider>
         </ApolloWrapper>    
         

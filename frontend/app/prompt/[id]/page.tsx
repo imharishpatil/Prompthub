@@ -17,6 +17,7 @@ import {
   Check,
   Star,
 } from "lucide-react";
+import Loading from "@/app/loading";
 
 const formatDate = (dateString: string): string => {
   return new Date(dateString).toLocaleDateString();
@@ -41,7 +42,7 @@ export default function PromptDetailsPage() {
     }
   };
 
-  if (loading) return <div className="py-12 text-center">Loading...</div>;
+  if (loading) return <Loading />;
   if (error || !data?.prompt) return <div className="py-12 text-center text-red-500">Prompt not found.</div>;
 
   const prompt = data.prompt;

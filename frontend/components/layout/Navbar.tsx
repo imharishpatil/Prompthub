@@ -3,12 +3,15 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Menu, X, Zap, LogOut } from "lucide-react"
+import { useQuery } from "@apollo/client";
+import { ME_QUERY } from "@/lib/gql/user"
+import { User } from "@/lib/types";
+import { Menu, X, Zap } from "lucide-react"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { cn } from "@/lib/utils"
-import { deleteCookies } from "@/hooks/logout"
+import { deleteCookies, hasCookies } from "@/hooks/logout"
 import { Logout } from "../auth/logout"
 
 export function Navbar() {
@@ -16,24 +19,12 @@ export function Navbar() {
   const pathname = usePathname()
   const router = useRouter()
   const [isLoggedIn, setIsLoggedIn] = React.useState(false)
-  const [user, setUser] = React.useState<{ name?: string; avatarUrl?: string } | null>(null)
+  const { data, loading, error } = useQuery<{ me: User }>(ME_QUERY);
+  const user = data?.me;
 
   React.useEffect(() => {
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const token = hasCookies("token");
     setIsLoggedIn(!!token);
-    const userData = typeof window !== "undefined" ? localStorage.getItem("user") : null;
-    if (userData) {
-      try {
-        const parsed = JSON.parse(userData);
-        if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
-          setUser(parsed);
-        } else {
-          setUser(null);
-        }
-      } catch {
-        setUser(null);
-      }
-    }
   }, [])
 
   function handleLogout(){
@@ -42,7 +33,6 @@ export function Navbar() {
     deleteCookies("token")
     localStorage.removeItem("token")
     localStorage.removeItem("user")
-    setUser(null)
   }
 
   const navigation = isLoggedIn

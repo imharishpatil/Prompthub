@@ -62,7 +62,7 @@ export const typeDefs = gql`
   type Mutation {
   signup(email: String!, password: String!, name: String, avatarUrl: String): AuthPayload!
   login(email: String!, password: String!): AuthPayload!
-  googleAuth(token: String!): AuthPayload!
+  googleAuth(token: String!, avatarUrl: String): AuthPayload!
 
   updateUserProfile(name: String!, email: String!, avatarUrl: String): User!
   deleteAccount: Boolean!

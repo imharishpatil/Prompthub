@@ -1,5 +1,6 @@
 import type React from "react";
 import { Navbar } from "./Navbar";
+import { Footer } from "./Footer";
 import { ThemeProvider } from "next-themes";
 
 
@@ -12,7 +13,8 @@ export default function CustomLayout({
   return (
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <Navbar />
-            {children}  
+            {children}
+        <Footer />      
         </ThemeProvider> 
   );
 }

@@ -18,7 +18,6 @@ export function Logout({onClick}: {onClick: () => void}) {
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button
-          onClick={onClick}
           variant="ghost"
           size="sm"
           className="text-muted-foreground hover:text-red-600 hover:bg-transparent cursor-pointer"
@@ -26,7 +25,7 @@ export function Logout({onClick}: {onClick: () => void}) {
           <LogOut className="h-4 w-4" />
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent>
+      <AlertDialogContent className="sm:max-w-[425px] md:max-w-lg fixed top-70 lg:top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-card">
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
@@ -36,7 +35,7 @@ export function Logout({onClick}: {onClick: () => void}) {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Continue</AlertDialogAction>
+          <AlertDialogAction  onClick={onClick}>Continue</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

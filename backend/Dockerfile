@@ -37,7 +37,6 @@ COPY --from=builder /app/package-lock.json* ./
 COPY --from=builder /app/node_modules .node_modules
 COPY --from=builder /app/build .build
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/.env ./
 
 RUN npx prisma generate
 

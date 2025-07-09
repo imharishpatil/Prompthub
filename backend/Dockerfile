@@ -41,6 +41,10 @@ COPY --from=builder /app/.env ./
 
 RUN npx prisma generate
 
+# entrypoint script
+COPY entrypoint.sh ./
+RUN chmod +x ./entrypoint.sh
+
 EXPOSE 4000
 
-CMD ["node", "dist/index.js"]
+ENTRYPOINT ["./entrypoint.sh"]

@@ -1,23 +1,25 @@
-# For Build
 FROM node:20-slim AS builder
 
 WORKDIR /app
 
+# Install OpenSSL and libssl-dev (required for Prisma)
+RUN apt-get update && \
+    apt-get install -y openssl libssl-dev && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install dependencies
 COPY package.json package-lock.json* ./
 RUN npm install
 
-# Install OpenSSL 1.1 (required by Prisma)
-RUN apt-get update && apt-get install -y openssl
-
+# Copy source code
 COPY . .
 
-# Build TypeScript
+# Prisma client + build
+RUN npx prisma generate
 RUN npm run build
 
-# Generate Prisma client (if using Prisma)
-RUN npx prisma generate
-
-# entrypoint script
+# Entrypoint
 COPY entrypoint.sh ./
 RUN chmod +x ./entrypoint.sh
 

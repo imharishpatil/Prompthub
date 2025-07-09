@@ -51,7 +51,7 @@ const Mutation = {
       select: { id: true },
     });
 
-    const promptIds = userPrompts.map((p) => p.id);
+    const promptIds = userPrompts.map((p: { id: string }) => p.id);
 
     // Delete feedbacks on the user's prompts
     await context.prisma.feedback.deleteMany({

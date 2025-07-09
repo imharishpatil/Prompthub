@@ -1,5 +1,5 @@
 # For Build
-FROM node:20-slim
+FROM node:20-slim AS builder
 
 WORKDIR /app
 

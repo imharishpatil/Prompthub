@@ -1,38 +1,52 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import * as React from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useQuery } from "@apollo/client";
-import { ME_QUERY } from "@/lib/gql/user"
+import { ME_QUERY } from "@/lib/gql/user";
 import { User } from "@/lib/types";
-import { Menu, X, Zap } from "lucide-react"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { ThemeToggle } from "@/components/ui/theme-toggle"
-import { cn } from "@/lib/utils"
-import { deleteCookies, hasCookies } from "@/hooks/logout"
-import { Logout } from "../auth/logout"
+import { Menu, X, Zap } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { cn } from "@/lib/utils";
+import { deleteCookies } from "@/hooks/logout";
+import { Logout } from "../auth/logout";
 
 export function Navbar() {
-  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
-  const pathname = usePathname()
-  const router = useRouter()
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false)
-  const { data, loading, error } = useQuery<{ me: User }>(ME_QUERY);
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const { data } = useQuery<{ me: User }>(ME_QUERY);
   const user = data?.me;
 
+ 
   React.useEffect(() => {
-    const token = hasCookies("token");
-    setIsLoggedIn(!!token);
-  }, [])
+    const token = localStorage.getItem("token");
+    const loginFlag = localStorage.getItem("isLoggedIn");
+    setIsLoggedIn(!!token || loginFlag === "true");
+  }, []);
 
-  function handleLogout(){
-    router.push("/login")
-    setIsLoggedIn(false)
-    deleteCookies("token")
-    localStorage.removeItem("token")
-    localStorage.removeItem("user")
+  
+  React.useEffect(() => {
+    if (isLoggedIn) {
+      localStorage.setItem("isLoggedIn", "true");
+    } else {
+      localStorage.removeItem("isLoggedIn");
+    }
+  }, [isLoggedIn]);
+
+  function handleLogout() {
+    deleteCookies("token");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("isLoggedIn");
+    setIsLoggedIn(false);
+    router.push("/login");
   }
 
   const navigation = isLoggedIn
@@ -46,7 +60,7 @@ export function Navbar() {
         { name: "Home", href: "/" },
         { name: "Explore", href: "/explore" },
         { name: "About", href: "/about" },
-      ]
+      ];
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background backdrop-blur supports-[backdrop-filter]:bg-background/60 border-border">
@@ -56,9 +70,7 @@ export function Navbar() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
               <Zap className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold text-foreground">
-                PromptHub
-              </span>
+              <span className="text-xl font-bold text-foreground">PromptHub</span>
             </Link>
           </div>
 
@@ -83,7 +95,7 @@ export function Navbar() {
             </div>
           </div>
 
-          {/* Right side */}
+          {/* Right Side */}
           <div className="flex items-center space-x-4">
             <ThemeToggle />
 
@@ -113,33 +125,26 @@ export function Navbar() {
                     alt="Profile"
                     className="cursor-pointer"
                   />
-                  <AvatarFallback>
-                    {user?.name ? user.name[0] : "U"}
-                  </AvatarFallback>
-                </Avatar>    
+                  <AvatarFallback>{user?.name?.[0] || "U"}</AvatarFallback>
+                </Avatar>
                 <Logout onClick={handleLogout} />
-           
               </div>
             )}
 
-            {/* Mobile menu button */}
+            {/* Mobile Menu Button */}
             <div className="md:hidden">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
-                {mobileMenuOpen ? (
-                  <X className="h-5 w-5" />
-                ) : (
-                  <Menu className="h-5 w-5" />
-                )}
+                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </Button>
             </div>
           </div>
         </div>
 
-        {/* Mobile menu */}
+        {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 border-t border-border bg-background">
@@ -166,11 +171,9 @@ export function Navbar() {
                       alt="Profile"
                       className="cursor-pointer"
                     />
-                    <AvatarFallback>
-                      {user?.name ? user.name[0] : "U"}
-                    </AvatarFallback>
+                    <AvatarFallback>{user?.name?.[0] || "U"}</AvatarFallback>
                   </Avatar>
-                <Logout onClick={handleLogout} />
+                  <Logout onClick={handleLogout} />
                 </div>
               ) : (
                 <div className="space-y-2 flex">

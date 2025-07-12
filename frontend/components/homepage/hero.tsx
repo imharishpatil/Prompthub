@@ -3,6 +3,8 @@
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Sparkles } from "lucide-react"
+import { useRouter } from "next/navigation"
+
 
 function FloatingPaths({ position }: { position: number }) {
   const paths = Array.from({ length: 36 }, (_, i) => ({
@@ -16,6 +18,7 @@ function FloatingPaths({ position }: { position: number }) {
     } ${875 - i * 6} ${684 - i * 5 * position} ${875 - i * 6}`,
     width: 0.5 + i * 0.03,
   }))
+
 
   return (
     <div className="absolute inset-0 pointer-events-none">
@@ -52,7 +55,7 @@ function FloatingPaths({ position }: { position: number }) {
 export default function Hero() {
   const title = "PromptHub"
   const words = title.split(" ")
-
+  const router = useRouter();
   return (
     <section className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-background">
       <div className="absolute inset-0">
@@ -127,6 +130,7 @@ export default function Hero() {
             >
               <Button
                 size="lg"
+                onClick={() => router.push("/register")}
                 className="rounded-[1.15rem] px-2 py-3 md:px-4 md:py-4 text-md md:text-lg font-semibold backdrop-blur-md 
                             bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200 
                             group-hover:-translate-y-0.5 border-0"
@@ -142,6 +146,7 @@ export default function Hero() {
             <Button
               variant="outline"
               size="lg"
+              onClick={() => router.push("/explore")}
               className="px-4 py-3 md:py-4 text-md md:text-lg font-semibold backdrop-blur-md bg-background border-border text-foreground transition-all duration-300"
             >
               Explore Prompts

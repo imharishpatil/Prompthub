@@ -33,6 +33,7 @@ import {
   PaginationPrevious,
   PaginationNext,
 } from "@/components/ui/pagination";
+import CustomLayout from "@/components/layout/layout";
 
 // ----------------- Utils -----------------
 const getAverageRating = (feedbacks: Feedback[]): number => {
@@ -122,6 +123,7 @@ export default function ExplorePage() {
   }, [currentPage]);
 
   return (
+    <CustomLayout>
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Heading */}
@@ -362,5 +364,6 @@ export default function ExplorePage() {
         )}
       </div>
     </div>
+    </CustomLayout>
   );
 }

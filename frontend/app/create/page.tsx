@@ -11,13 +11,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ImageUpload from "@/components/upload/ImageUpload";
 import { toast } from "sonner";
 import {
   X,
   Globe,
-  Upload,
   GitBranch,
 } from "lucide-react";
+import CustomLayout from "@/components/layout/layout";
 
 export default function CreatePage() {
   const searchParams = useSearchParams();
@@ -126,40 +127,9 @@ export default function CreatePage() {
     }
   };
 
-  const handleImageUpload = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    event.preventDefault();
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/png, image/jpeg";
-    input.onchange = async (e: any) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      if (file.size > 5 * 1024 * 1024) {
-        toast("File too large", {
-          description: "Please select an image smaller than 5MB.",
-        });
-        return;
-      }
-      setIsUploading(true);
-      try {
-        await new Promise((res) => setTimeout(res, 1200));
-        const imageUrl = URL.createObjectURL(file);
-        setPromptData((prev) => ({ ...prev, imageUrl }));
-        toast("Image uploaded!", {
-          description: "Your image has been attached to the prompt.",
-        });
-      } catch (err: any) {
-        toast("Upload failed", {
-          description: err.message || "Could not upload image.",
-        });
-      } finally {
-        setIsUploading(false);
-      }
-    };
-    input.click();
-  };
 
   return (
+    <CustomLayout>
     <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="mb-6">
@@ -230,14 +200,10 @@ export default function CreatePage() {
                   </Button>
                 </div>
               ) : (
-                <div className="w-full h-40 bg-muted rounded-lg flex items-center justify-center border-2 border-dashed border-border">
-                  <div className="text-center">
-                    <Upload className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
-                    <Button variant="outline" onClick={handleImageUpload} disabled={isUploading}>
-                      {isUploading ? "Uploading..." : "Upload Image"}
-                    </Button>
-                  </div>
-                </div>
+                <ImageUpload
+                  value={promptData.imageUrl}
+                  onChange={(url) => setPromptData({ ...promptData, imageUrl: url })} 
+                />
               )}
             </div>
 
@@ -292,5 +258,6 @@ export default function CreatePage() {
         </Tabs>
       </div>
     </div>
+    </CustomLayout>
   );
 }

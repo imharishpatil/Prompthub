@@ -2,6 +2,7 @@ import React from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
+import CustomLayout from "@/components/layout/layout";
 import {
   Search,
   Star,
@@ -16,7 +17,7 @@ import {
 
 export default function AboutPage() {
   return (
-    
+    <CustomLayout>
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Hero Section */}
@@ -211,5 +212,6 @@ export default function AboutPage() {
         </div>
       </div>
     </div>
+    </CustomLayout>
   )
 }

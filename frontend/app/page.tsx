@@ -1,4 +1,5 @@
 import Hero from "@/components/homepage/hero"
+import CustomLayout from "@/components/layout/layout";
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 
@@ -11,6 +12,8 @@ export default async function Home() {
   }
 
   return (
+    <CustomLayout>
     <Hero />
+    </CustomLayout>
   );
 }

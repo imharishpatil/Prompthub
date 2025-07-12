@@ -33,6 +33,7 @@ import { DeleteAccount } from "@/components/profile/Delete";
 import { ShareDialog } from "@/components/profile/Share";
 import { Prompt } from "@/lib/types";
 import Loading from "../loading";
+import CustomLayout from "@/components/layout/layout";
 
 // Helper functions
 const getAverageRating = (feedbacks: { rating: number }[]) =>
@@ -162,7 +163,7 @@ const handleDeleteAccount = async () => {
   }
 
   return (
-  
+    <CustomLayout>
       <div className="min-h-screen bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Profile Header */}
@@ -922,5 +923,6 @@ const handleDeleteAccount = async () => {
           </div>
         </div>
       </div>
+      </CustomLayout>
   );
 }

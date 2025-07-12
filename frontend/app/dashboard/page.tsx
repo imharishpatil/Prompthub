@@ -8,11 +8,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { Feedback, Prompt, User } from "@/lib/types";
+import { User } from "@/lib/types";
 import {
   Search, Plus, Settings, TrendingUp, Share2, BookOpen, Target, Calendar, Star, MessageCircle, GitBranch,
 } from "lucide-react";
 import Loading from "../loading";
+import CustomLayout from "@/components/layout/layout";
 
 // Helper functions
 const getAverageRating = (feedbacks: { rating: number }[] = []) =>
@@ -97,6 +98,7 @@ export default function Dashboard() {
   }
 
   return (
+    <CustomLayout>
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Header */}
@@ -392,5 +394,6 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
+    </CustomLayout>
   );
 }

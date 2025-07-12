@@ -63,7 +63,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
           <CardDescription className="text-muted-foreground">Login with your Google account</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit}>
+          <form>
             <div className="grid gap-6">
               <GoogleSignupButton />
               <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
@@ -104,7 +104,8 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
                 <Button
                   type="submit"
                   variant="ghost"
-                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-background"
+                  onClick={handleSubmit}
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                   disabled={loading}
                 >
                   {loading && <Loader2Icon className="animate-spin mr-2" />}  

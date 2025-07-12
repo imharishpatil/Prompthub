@@ -4,7 +4,6 @@ import { useRouter, useParams } from "next/navigation";
 import { useQuery, useMutation } from "@apollo/client";
 import { PROMPT_DETAILS_QUERY, CREATE_FEEDBACK_MUTATION } from "@/lib/gql/promptDetails"; 
 import { ScrollArea } from "@/components/ui/scroll-area";
-import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Prompt } from "@/lib/types";
@@ -81,10 +80,9 @@ export default function PromptDetailsPage() {
         </div>
 
         {prompt.imageUrl ? (
-          <Image
+          <img
             src={prompt.imageUrl}
             alt={prompt.title}
-            fill
             className="w-full max-h-64 object-cover rounded-lg mb-8"
           />
         ) : (

@@ -11,12 +11,12 @@ import { Prompt } from "@/lib/types";
 import {
   Copy,
   GitBranch,
-  Share2,
   MessageCircle,
   ImageIcon,
   Check,
   Star,
 } from "lucide-react";
+import { ShareDialog } from "@/components/profile/Share";
 import Loading from "@/app/loading";
 import CustomLayout from "@/components/layout/layout";
 import { toast } from "sonner";
@@ -132,7 +132,7 @@ export default function PromptDetailsPage() {
 
           <div className="flex flex-col items-center">
             <Button variant="outline" size="icon" className="mb-1 p-2 cursor-pointer">
-              <Share2 className="h-5 w-5" />
+              <ShareDialog id={prompt.id}/>
             </Button>
             <span className="text-xs">Share</span>
           </div>

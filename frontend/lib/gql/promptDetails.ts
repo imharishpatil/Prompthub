@@ -7,6 +7,7 @@ export const PROMPT_DETAILS_QUERY = gql`
       title
       content
       tags
+      imageUrl
       createdAt
       remixCount
       author {

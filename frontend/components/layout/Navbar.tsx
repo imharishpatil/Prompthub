@@ -13,6 +13,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { cn } from "@/lib/utils";
 import { deleteCookies } from "@/hooks/logout";
 import { Logout } from "../auth/logout";
+import { Separator } from "../ui/separator";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
@@ -163,8 +164,9 @@ export function Navbar() {
                   {item.name}
                 </Link>
               ))}
+              <Separator className="my-4" />
               {isLoggedIn ? (
-                <div className="pt-4 pb-3 border-t flex items-center space-x-2">
+                <div className="pt-4 pb-3 flex items-center space-x-2">
                   <Avatar>
                     <AvatarImage
                       src={user?.avatarUrl || "/placeholder-user.jpg"}
@@ -176,11 +178,11 @@ export function Navbar() {
                   <Logout onClick={handleLogout} />
                 </div>
               ) : (
-                <div className="space-y-2 flex">
+                <div className="pt-4 pb-3 flex space-x-2">
                   <Link href="/login" className="block">
                     <Button
-                      variant="outline"
-                      className="w-full justify-start bg-primary text-primary-foreground hover:bg-secondary"
+                      variant="secondary"
+                      className="w-full bg-primary text-primary-foreground"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       Login
@@ -188,8 +190,8 @@ export function Navbar() {
                   </Link>
                   <Link href="/register" className="block">
                     <Button
-                      variant="ghost"
-                      className="w-full justify-start bg-muted text-muted-foreground hover:bg-secondary"
+                      variant="outline"
+                      className="w-full bg-secondary "
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       Register

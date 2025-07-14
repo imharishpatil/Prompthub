@@ -32,7 +32,7 @@ import { deleteCookies } from "@/hooks/logout";
 import { DeleteAccount } from "@/components/profile/Delete";
 import { ShareDialog } from "@/components/profile/Share";
 import { Prompt } from "@/lib/types";
-import Loading from "../loading";
+import Loading from "@/components/ui/loading";
 import CustomLayout from "@/components/layout/layout";
 
 // Helper functions

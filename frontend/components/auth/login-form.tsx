@@ -97,15 +97,12 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   />
                   {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
-                  <a href="#" className="ml-auto text-sm text-primary underline-offset-4 hover:underline">
-                    Forgot your password?
-                  </a>
                 </div>
                 <Button
                   type="submit"
                   variant="ghost"
                   onClick={handleSubmit}
-                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                  className="mt-2 w-full bg-primary text-primary-foreground hover:bg-primary/90"
                   disabled={loading}
                 >
                   {loading && <Loader2Icon className="animate-spin mr-2" />}  

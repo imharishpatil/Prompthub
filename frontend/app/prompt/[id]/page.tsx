@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useQuery, useMutation } from "@apollo/client";
 import { PROMPT_DETAILS_QUERY, CREATE_FEEDBACK_MUTATION } from "@/lib/gql/promptDetails"; 
@@ -16,7 +16,7 @@ import {
   Star,
 } from "lucide-react";
 import { ShareDialog } from "@/components/profile/Share";
-import Loading from "@/app/loading";
+import Loading from "@/components/ui/loading";
 import CustomLayout from "@/components/layout/layout";
 import { toast } from "sonner";
 
@@ -35,6 +35,15 @@ export default function PromptDetailsPage() {
   const [comment, setComment] = useState("");
   const [rating, setRating] = useState(0);
   const [errorMsg, setErrorMsg] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+useEffect(() => {
+  const token = localStorage.getItem("token");
+  const loginFlag = localStorage.getItem("isLoggedIn");
+  setIsLoggedIn(!!token || loginFlag === "true");
+}, []);
+
+  
 
   const [createFeedback, { loading: submitting }] = useMutation(CREATE_FEEDBACK_MUTATION, {
     refetchQueries: ["Prompt"],
@@ -68,14 +77,18 @@ export default function PromptDetailsPage() {
     <CustomLayout>
       <div className="max-w-3xl mx-auto px-4 py-12">
         <h1 className="text-3xl font-bold mb-2">{prompt.title}</h1>
-        <p className="text-muted-foreground mb-1">Created by {prompt.author?.name}</p>
+        <p className="text-muted-foreground mb-1">
+          Created by {prompt.author?.name}
+        </p>
         <div className="text-xs text-muted-foreground mb-4">
           On {formatDate(prompt.createdAt)}
         </div>
 
         <div className="flex flex-wrap gap-2 mb-6">
           {prompt.tags.map((tag) => (
-            <Badge key={tag} variant="outline" className="text-sm">{tag}</Badge>
+            <Badge key={tag} variant="outline" className="text-sm">
+              {tag}
+            </Badge>
           ))}
         </div>
 
@@ -98,7 +111,7 @@ export default function PromptDetailsPage() {
         <div className="flex gap-8 mb-8">
           <div className="flex flex-col items-center">
             <Button
-              variant={copied ? "default" : "outline"}
+              variant={copied ? "default" : "ghost"}
               size="icon"
               className="mb-1 p-2 cursor-pointer transition-colors"
               onClick={() => handleCopy(prompt.content)}
@@ -116,10 +129,16 @@ export default function PromptDetailsPage() {
             <Button
               onClick={() =>
                 router.push(
-                  `/create?remixOf=${prompt.id}&title=${encodeURIComponent(prompt.title)}&content=${encodeURIComponent(prompt.content)}&tags=${encodeURIComponent(prompt.tags.join(","))}&imageUrl=${encodeURIComponent(prompt.imageUrl || "")}`
+                  `/create?remixOf=${prompt.id}&title=${encodeURIComponent(
+                    prompt.title
+                  )}&content=${encodeURIComponent(
+                    prompt.content
+                  )}&tags=${encodeURIComponent(
+                    prompt.tags.join(",")
+                  )}&imageUrl=${encodeURIComponent(prompt.imageUrl || "")}`
                 )
               }
-              variant="outline"
+              variant="ghost"
               size="icon"
               className="mb-1 p-2 cursor-pointer"
             >
@@ -129,9 +148,7 @@ export default function PromptDetailsPage() {
           </div>
 
           <div className="flex flex-col items-center">
-            <Button variant="outline" size="icon" className="mb-1 p-2 cursor-pointer">
-              <ShareDialog id={prompt.id}/>
-            </Button>
+            <ShareDialog id={prompt.id} />
             <span className="text-xs">Share</span>
           </div>
         </div>
@@ -150,7 +167,9 @@ export default function PromptDetailsPage() {
         <h2 className="text-xl font-semibold mb-4">Comments</h2>
         <div className="space-y-6">
           {prompt.feedbacks.length === 0 && (
-            <div className="text-muted-foreground text-sm">No comments yet.</div>
+            <div className="text-muted-foreground text-sm">
+              No comments yet.
+            </div>
           )}
 
           {prompt.feedbacks.map((fb) => (
@@ -171,14 +190,21 @@ export default function PromptDetailsPage() {
               <div>
                 <div className="font-semibold text-sm">{fb.user.name}</div>
                 <div className="text-xs text-muted-foreground mb-1">
-                  {Math.floor((Date.now() - new Date(fb.createdAt).getTime()) / (1000 * 60 * 60 * 24))}{" "}
+                  {Math.floor(
+                    (Date.now() - new Date(fb.createdAt).getTime()) /
+                      (1000 * 60 * 60 * 24)
+                  )}{" "}
                   days ago
                 </div>
                 <div className="flex items-center">
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`h-4 w-4 ${i < fb.rating ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`}
+                      className={`h-4 w-4 ${
+                        i < fb.rating
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-muted-foreground"
+                      }`}
                     />
                   ))}
                 </div>
@@ -191,41 +217,56 @@ export default function PromptDetailsPage() {
         {/* Feedback Form */}
         <div className="mt-10">
           <h2 className="text-lg font-semibold mb-2">Leave a Comment</h2>
-          <div className="flex gap-2 mb-3">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <Star
-                key={i}
-                className={`h-6 w-6 cursor-pointer ${i <= rating ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`}
-                onClick={() => setRating(i)}
+
+          {isLoggedIn ? (
+            <>
+              <div className="flex gap-2 mb-3">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <Star
+                    key={i}
+                    className={`h-6 w-6 cursor-pointer ${
+                      i <= rating
+                        ? "fill-yellow-400 text-yellow-400"
+                        : "text-muted-foreground"
+                    }`}
+                    onClick={() => setRating(i)}
+                  />
+                ))}
+              </div>
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Write your feedback..."
+                className="w-full p-2 border border-gray-300 rounded-md mb-2"
+                rows={3}
               />
-            ))}
-          </div>
-          <textarea
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            placeholder="Write your feedback..."
-            className="w-full p-2 border border-gray-300 rounded-md mb-2"
-            rows={3}
-          />
-          {errorMsg && <div className="text-red-500 text-sm mb-2">{errorMsg}</div>}
-          <Button
-            onClick={async () => {
-              if (!rating || !comment.trim()) {
-                setErrorMsg("Please provide both a rating and a comment.");
-                return;
-              }
-              await createFeedback({
-                variables: {
-                  promptId: String(id),
-                  comment,
-                  rating,
-                },
-              });
-            }}
-            disabled={submitting}
-          >
-            {submitting ? "Submitting..." : "Submit Feedback"}
-          </Button>
+              {errorMsg && (
+                <div className="text-red-500 text-sm mb-2">{errorMsg}</div>
+              )}
+              <Button
+                onClick={async () => {
+                  if (!rating || !comment.trim()) {
+                    setErrorMsg("Please provide both a rating and a comment.");
+                    return;
+                  }
+                  await createFeedback({
+                    variables: {
+                      promptId: String(id),
+                      comment,
+                      rating,
+                    },
+                  });
+                }}
+                disabled={submitting}
+              >
+                {submitting ? "Submitting..." : "Submit Feedback"}
+              </Button>
+            </>
+          ) : (
+            <div className="text-muted-foreground text-sm italic">
+              Please log in to leave a comment.
+            </div>
+          )}
         </div>
       </div>
     </CustomLayout>

@@ -12,7 +12,7 @@ import { User } from "@/lib/types";
 import {
   Search, Plus, Settings, TrendingUp, Share2, BookOpen, Target, Calendar, Star, MessageCircle, GitBranch,
 } from "lucide-react";
-import Loading from "../loading";
+import Loading from "@/components/ui/loading";
 import CustomLayout from "@/components/layout/layout";
 
 // Helper functions
@@ -25,19 +25,29 @@ const formatDate = (dateString: string) => new Date(dateString).toLocaleDateStri
 
 export default function Dashboard() {
   const router = useRouter();
+const [tokenChecked, setTokenChecked] = React.useState(false);
+const [hasToken, setHasToken] = React.useState(false);
 
-  useEffect(() => {
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    if (!token) {
-      router.replace("/login");
-    }
-  }, [router]);
-
-  const { data, loading, error } = useQuery<{ me: User }>(ME_WITH_PROMPTS_QUERY);
-
-  if (loading) {
-    return <Loading/>
+useEffect(() => {
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  if (!token) {
+    router.replace("/login");
+  } else {
+    setHasToken(true);
   }
+  setTokenChecked(true);
+}, [router]);
+
+
+const { data, loading, error } = useQuery<{ me: User }>(ME_WITH_PROMPTS_QUERY, {
+  skip: !tokenChecked || !hasToken, 
+});
+
+
+  if (!tokenChecked || loading) {
+  return <Loading />;
+}
+
   if (error || !data?.me) {
     return (
       <div className="min-h-screen flex items-center justify-center text-red-500">

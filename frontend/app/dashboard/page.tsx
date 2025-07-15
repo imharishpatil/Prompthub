@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
 import { useRouter } from "next/navigation";
 import { ME_WITH_PROMPTS_QUERY } from "@/lib/gql/dashboard";

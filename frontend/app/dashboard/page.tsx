@@ -25,33 +25,40 @@ const formatDate = (dateString: string) => new Date(dateString).toLocaleDateStri
 
 export default function Dashboard() {
   const router = useRouter();
-const [tokenChecked, setTokenChecked] = React.useState(false);
-const [hasToken, setHasToken] = React.useState(false);
+  const [tokenChecked, setTokenChecked] = useState(false);
+  const [hasToken, setHasToken] = useState(false);
 
-useEffect(() => {
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  if (!token) {
-    router.replace("/login");
-  } else {
-    setHasToken(true);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.replace("/login");
+    } else {
+      setHasToken(true);
+    }
+    setTokenChecked(true);
+  }, [router]);
+
+  const { data, loading, error } = useQuery<{ me: User }>(ME_WITH_PROMPTS_QUERY, {
+    skip: !tokenChecked || !hasToken,
+    fetchPolicy: "network-only",
+  });
+
+  if (!tokenChecked || !hasToken || loading) {
+    return <Loading />;
   }
-  setTokenChecked(true);
-}, [router]);
 
-
-const { data, loading, error } = useQuery<{ me: User }>(ME_WITH_PROMPTS_QUERY, {
-  skip: !tokenChecked || !hasToken, 
-});
-
-
-  if (!tokenChecked || loading) {
-  return <Loading />;
-}
-
-  if (error || !data?.me) {
+  if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center text-red-500">
-        {error?.message || "User not found or not authenticated."}
+        {error.message}
+      </div>
+    );
+  }
+
+  if (!data?.me) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-red-500">
+        User not found or not authenticated.
       </div>
     );
   }

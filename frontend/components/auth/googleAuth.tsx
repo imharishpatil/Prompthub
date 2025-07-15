@@ -52,7 +52,7 @@ export function GoogleSignupButton() {
   };
 
   return (
-    <div className="w-full flex items-center">
+    <div className="w-full flex items-center justify-center">
       {loading ? (
         <button
           className="w-full flex items-center justify-center gap-2 bg-muted text-foreground border border-border px-4 py-2 rounded-md cursor-not-allowed"
